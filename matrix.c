@@ -36,6 +36,13 @@ void matrix_set(struct matrix *mat, const double *a)
 	}
 }
 
+void matrix_swap(struct matrix *a, struct matrix *b)
+{
+	struct matrix tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
 {
 	for (int i = 0; i < mat->n; i++) {
@@ -96,20 +103,20 @@ void matrix_householder(struct matrix *mat, struct matrix *q, int k)
 		alpha += mat->a[i + k*mat->n]*mat->a[i + k*mat->n];
 	}
 
-	double norm = 2*alpha;
+	double norm = 2.*alpha;
 
 	alpha = sqrt(alpha);
 	if (mat->a[k + k*mat->n] < 0) {
 		alpha = -alpha;
 	}
-	norm -= 2*alpha*mat->a[k + k*mat->n];
+	norm -= 2.*alpha*mat->a[k + k*mat->n];
 
 	// Construct Q
 	for (int i = 0; i < q->n; i++) {
 		for (int j = 0; j < q->m; j++) {
 			q->a[i + j*q->n] = (i == j ? 1 : 0);
 			if (i >= k && j >= k) {
-				q->a[i + j*q->n] -= 2 * (i == k ? mat->a[i + k*mat->n]-alpha : mat->a[i + k*mat->n]) * (j == k ? mat->a[j + k*mat->n]-alpha : mat->a[j + k*mat->n]) / norm;
+				q->a[i + j*q->n] -= 2. * (i == k ? mat->a[i + k*mat->n]-alpha : mat->a[i + k*mat->n]) * (j == k ? mat->a[j + k*mat->n]-alpha : mat->a[j + k*mat->n]) / norm;
 			}
 		}
 	}
@@ -137,7 +144,27 @@ void matrix_qr(struct matrix *mat, struct matrix *q, struct matrix *r)
 		}
 	}
 
+	// Store Householder transformations in this matrix
+	struct matrix *h = matrix_malloc(n, n);
+	struct matrix *tmp = matrix_malloc(n, n);
+
 	// Construct actual qr decomposition
-	for (int i = 0; i < min(n, m-1); i++) {
+	for (int i = 0; i < min(n-1, m); i++) {
+		matrix_householder(r, h, i);
+		matrix_mul(tmp, h, q);
+		matrix_swap(tmp, q);
+		matrix_mul(r, q, mat);
 	}
+
+	// Transpose Q
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < i; j++) {
+			double tmp = q->a[i + j*n];
+			q->a[i + j*n] = q->a[j + i*n];
+			q->a[j + i*n] = tmp;
+		}
+	}
+
+	matrix_free(h);
+	matrix_free(tmp);
 }
