@@ -86,51 +86,58 @@ void matrix_multt(struct matrix *mat, const struct matrix *b, const struct matri
 
 // Constructs a Householder transformation of the bottom right part of the
 // matrix mat. The bottom right starts at column k and row k.
-// TODO: You probably do not want to explictly construct q, but only construct
-// u and store that in the QR matrix (i.e. the "LAPACK" way)
 void matrix_householder(struct matrix *mat, struct matrix *q, int k)
 {
 	assert(q->n == mat->n);
 	assert(q->m == mat->n);
 
-	// alpha = ||col_k||
 	double alpha = 0;
-
-	// u = x - alpha e_1
-	struct matrix *u = matrix_malloc(mat->n-k, 1);
 	for (int i = k; i < mat->n; i++) {
-		u->a[i-k] = mat->a[i + k*mat->n];
 		alpha += mat->a[i + k*mat->n]*mat->a[i + k*mat->n];
 	}
 
-	// norm = ||u||^2
 	double norm = 2*alpha;
 
 	alpha = sqrt(alpha);
-	if (mat->a[k + k*mat->n] > 0) {
-		norm -= 2*alpha*u->a[0];
-		u->a[0] -= alpha;
-	} else {
-		norm += 2*alpha*u->a[0];
-		u->a[0] += alpha;
+	if (mat->a[k + k*mat->n] < 0) {
+		alpha = -alpha;
 	}
+	norm -= 2*alpha*mat->a[k + k*mat->n];
 
 	// Construct Q
 	for (int i = 0; i < q->n; i++) {
 		for (int j = 0; j < q->m; j++) {
 			q->a[i + j*q->n] = (i == j ? 1 : 0);
 			if (i >= k && j >= k) {
-				q->a[i + j*q->n] -= 2*u->a[i-k]*u->a[j-k]/norm;
+				q->a[i + j*q->n] -= 2 * (i == k ? mat->a[i + k*mat->n]-alpha : mat->a[i + k*mat->n]) * (j == k ? mat->a[j + k*mat->n]-alpha : mat->a[j + k*mat->n]) / norm;
 			}
 		}
 	}
-
-	matrix_free(u);
 }
 
 // Determine QR, assumes column-major ordering
 void matrix_qr(struct matrix *mat, struct matrix *q, struct matrix *r)
 {
-	for (int i = 0; i < min(mat->n, mat->m-1); i++) {
+	assert(q->n == mat->n);
+	assert(q->m == mat->n);
+	assert(r->n == mat->n);
+	assert(r->m == mat->m);
+
+	int n = mat->n, m = mat->m;
+
+	// Copy mat in r
+	for (int i = 0; i < n*m; i++) {
+		r->a[i] = mat->a[i];
+	}
+
+	// Make q identity
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			q->a[i + j*n] = (i == j ? 1 : 0);
+		}
+	}
+
+	// Construct actual qr decomposition
+	for (int i = 0; i < min(n, m-1); i++) {
 	}
 }
