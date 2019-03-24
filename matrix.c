@@ -14,7 +14,7 @@ struct matrix *matrix_malloc(int n, int m)
 	mat->n = n;
 	mat->m = m;
 	if (n > 0 && m > 0) {
-		mat->a = calloc(sizeof(double), n*m);
+		mat->a = malloc(sizeof(double)*n*m);
 	} else {
 		mat->a = NULL;
 	}
