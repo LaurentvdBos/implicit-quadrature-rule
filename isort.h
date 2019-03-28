@@ -6,6 +6,6 @@
  * approximately sorted. Quicksort is relatively slow to work with these lists,
  * so we use an insertion sort.
  */
-void isort(int *start, int *end);
+void isort(int *a, int n);
 
 #endif

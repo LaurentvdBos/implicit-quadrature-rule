@@ -1,12 +1,10 @@
-void isort(int *start, int *end)
+void isort(int *a, int n)
 {
-	int n = end - start;
-
 	for (int i = 1; i < n; i++) {
-		for (int j = i; j > 0 && start[j] < start[j-1]; j--) {
-			int tmp = start[j];
-			start[j] = start[j-1];
-			start[j-1] = tmp;
+		for (int j = i; j > 0 && a[j] < a[j-1]; j--) {
+			int tmp = a[j];
+			a[j] = a[j-1];
+			a[j-1] = tmp;
 		}
 	}
 }
