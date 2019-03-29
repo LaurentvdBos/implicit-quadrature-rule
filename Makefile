@@ -7,4 +7,4 @@ all: main
 clean:
 	-rm main
 
-main: main.o matrix.o isort.o
+main: main.o matrix.o isort.o total_sequence.o
