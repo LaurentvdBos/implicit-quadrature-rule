@@ -1,10 +1,13 @@
-CFLAGS=-O3 -march=native -g
-LDLIBS=-lm
+CFLAGS = -O3 -march=native -g
+LDLIBS = -lm
+
+OBJECTS = implquad.o matrix.o isort.o total_sequence.o trie.o
 
 .PHONY: all clean
 
-all: main
+all: implquad
 clean:
-	-rm main
+	-rm $(OBJECTS)
+	-rm implquad
 
-main: main.o matrix.o isort.o total_sequence.o trie.o
+implquad: $(OBJECTS)
