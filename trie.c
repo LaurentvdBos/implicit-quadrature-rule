@@ -27,6 +27,7 @@ void trie_free(struct trie *root)
 void trie_add(struct trie *root, unsigned int *a, int n)
 {
 	struct trie *ptr = root;
+
 	for (int i = 0; i < n; i++) {
 		if (ptr->len <= a[i]) {
 			ptr->next = realloc(ptr->next, (a[i]+1)*sizeof(struct trie *));
@@ -49,12 +50,14 @@ void trie_add(struct trie *root, unsigned int *a, int n)
 bool trie_contains(struct trie *root, unsigned int *a, int n)
 {
 	struct trie *ptr = root;
+
 	for (int i = 0; i < n; i++) {
 		if (!ptr || ptr->len <= a[i]) {
 			return false;
 		}
 		ptr = ptr->next[a[i]];
 	}
+
 	if (!ptr) {
 		return false;
 	} else {
