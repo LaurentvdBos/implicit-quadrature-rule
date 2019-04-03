@@ -52,15 +52,13 @@ bool trie_contains(struct trie *root, unsigned int *a, int n)
 	struct trie *ptr = root;
 
 	for (int i = 0; i < n; i++) {
-		if (!ptr || ptr->len <= a[i]) {
+		if (ptr->len <= a[i]) {
 			return false;
 		}
-		ptr = ptr->next[a[i]];
+		if (!(ptr = ptr->next[a[i]])) {
+			return false;
+		}
 	}
 
-	if (!ptr) {
-		return false;
-	} else {
-		return ptr->end;
-	}
+	return ptr->end;
 }
