@@ -1,5 +1,5 @@
 CFLAGS = -O3 -march=native -g
-LDLIBS = -lm
+LDLIBS = -lm -llapack -llapacke
 
 OBJECTS = implquad.o matrix.o isort.o total_sequence.o trie.o
 
