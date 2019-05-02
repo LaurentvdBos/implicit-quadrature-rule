@@ -47,7 +47,7 @@ void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
 {
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			fprintf(f, fmt, mat->a[i + j*mat->n]);
+			fprintf(f, fmt, mat->a[i*mat->m + j]);
 			fputc(' ', f);
 		}
 		fputc('\n', f);
@@ -64,30 +64,11 @@ void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix 
 
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			mat->a[i + j*mat->n] = 0;
+			mat->a[i*mat->m + j] = 0;
 
 			for (int k = 0; k < c->n; k++) {
-				mat->a[i + j*mat->n] += b->a[i + k*b->n]*c->a[k + j*c->n];
+				mat->a[i*mat->m + j] += b->a[i*b->m + k]*c->a[k*c->m + j];
 			}
 		}
 	}
 }
-
-// mat = b^t*c^t = (c*b)^t
-void matrix_multt(struct matrix *mat, const struct matrix *b, const struct matrix *c)
-{
-	assert(mat->n == b->m);
-	assert(mat->m == c->n);
-	assert(b->n == c->m);
-
-	for (int i = 0; i < mat->m; i++) {
-		for (int j = 0; j < mat->n; j++) {
-			mat->a[j + i*mat->n] = 0;
-
-			for (int k = 0; k < c->n; k++) {
-				mat->a[j + i*mat->n] += c->a[i + k*b->n]*b->a[k + j*c->n];
-			}
-		}
-	}
-}
-
