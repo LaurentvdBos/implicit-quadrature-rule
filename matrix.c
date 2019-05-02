@@ -33,8 +33,10 @@ void matrix_free(struct matrix *mat)
 
 void matrix_set(struct matrix *mat, const double *a)
 {
-	for (int i = 0; i < mat->n*mat->m; i++) {
-		mat->a[i] = a[i];
+	for (int i = 0; i < mat->n; i++) {
+		for (int j = 0; j < mat->m; j++) {
+			mat->a[i*mat->lda + j] = a[i*mat->m + j];
+		}
 	}
 }
 
@@ -43,6 +45,23 @@ void matrix_swap(struct matrix *a, struct matrix *b)
 	struct matrix tmp = *a;
 	*a = *b;
 	*b = tmp;
+}
+
+void matrix_resize(struct matrix *mat, const int n, const int m)
+{
+	if (mat->lda >= m) {
+		mat->a = realloc(mat->a, sizeof(double)*mat->lda*n);
+	} else {
+		mat->a = realloc(mat->a, sizeof(double)*m*n);
+		for (int i = min(mat->n, n)-1; i >= 0; i--) {
+			for (int j = mat->m-1; j >= 0; j--) {
+				mat->a[i*m + j] = mat->a[i*mat->lda + j];
+			}
+		}
+		mat->lda = m;
+	}
+	mat->n = n;
+	mat->m = m;
 }
 
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
