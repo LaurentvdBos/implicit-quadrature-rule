@@ -2,36 +2,55 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
-int main()
+#include <unistd.h>
+
+int d = 0, n = 0;
+
+void usage(const char *myname)
 {
-	srand(time(0));
+	fprintf(stderr, "Usage: %s [-d dim] [-n number of nodes]\n\n", myname);
+	fprintf(stderr, "This program start reading samples from standard input until eof and\n"
+	                "prints the quadrature consisting on n nodes to standard output.\n");
+}
 
-	int n = 5;
-	int m = 7;
-	double *a = malloc(n*m*sizeof(double));
-	for (int i = 0; i < n*m; i++)
-		a[i] = (double) rand() / (double) RAND_MAX * 2. - 1.;
+int main(int argc, char **argv)
+{
+	if (argc < 1) {
+		usage("[this-program]");
+		return EXIT_FAILURE;
+	} else if (argc == 1) {
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	int opt;
+	while ((opt = getopt(argc, argv, "d:n:h?")) != -1) {
+		switch (opt) {
+			case 'd':
+				d = atoi(optarg);
+				break;
+			case 'n':
+				n = atoi(optarg);
+				break;
+			case 'h':
+			case '?':
+			default:
+				usage(argv[0]);
+				return EXIT_FAILURE;
+		}
+	}
+
+	if (d <= 0) {
+		fprintf(stderr, "%s: invalid value for 'd': %d\n", argv[0], d);
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
+	if (n <= 0) {
+		fprintf(stderr, "%s: invalid value for 'n': %d\n", argv[0], n);
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	}
 	
-	struct matrix *mat = matrix_malloc(n, m);
-	matrix_set(mat, a);
-
-	matrix_fprintf(stdout, mat, "%.10f");
-
-	struct matrix *q = matrix_malloc(m, m-n);
-	matrix_null(mat, q);
-
-	printf("\n");
-	matrix_fprintf(stdout, mat, "%.10f");
-
-	printf("\n");
-	matrix_fprintf(stdout, q, "%.10f");
-
-	matrix_free(q);
-	matrix_free(mat);
-
-	free(a);
-
-	return 0;
+	return EXIT_SUCCESS;
 }
