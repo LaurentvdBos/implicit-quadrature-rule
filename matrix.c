@@ -12,7 +12,7 @@
 double *matrix_workspace = NULL;
 lapack_int nwork = 0;
 
-static inline void workspace_ensure(int n)
+static inline void workspace_ensure(lapack_int n)
 {
 	if (n > nwork) {
 		nwork = n;
