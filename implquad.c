@@ -10,6 +10,8 @@
 int d = 0, n = 0, m = 0;
 struct total_sequence *ts;
 
+extern double *matrix_workspace;
+
 void usage(const char *myname)
 {
 	fprintf(stderr, "Usage: %s [-d dim] [-n number of nodes]\n\n", myname);
@@ -174,6 +176,8 @@ out:
 	matrix_free(vq);
 	matrix_free(v);
 	total_sequence_free(ts);
+
+	free(matrix_workspace);
 
 	return EXIT_SUCCESS;
 }

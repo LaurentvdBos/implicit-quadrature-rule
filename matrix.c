@@ -9,6 +9,17 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
+double *matrix_workspace = NULL;
+lapack_int nwork = 0;
+
+static inline void workspace_ensure(int n)
+{
+	if (n > nwork) {
+		nwork = n;
+		matrix_workspace = realloc(matrix_workspace, nwork*sizeof(double));
+	}
+}
+
 struct matrix *matrix_malloc(int n, int m)
 {
 	struct matrix *mat = malloc(sizeof(struct matrix));
@@ -134,21 +145,24 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 	double *tau = calloc(min(mat->n, mat->m), sizeof(double));
 	lapack_int *pvt = calloc(mat->n, sizeof(lapack_int));
 
-	double lwork, *work;
+	double lwork;
 	lapack_int info;
 
 	// Query for ideal work size
 	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, pvt, tau, &lwork, -1);
 	assert(info == 0);
 
+	workspace_ensure((lapack_int)lwork);
+
 	// Determine pivoted QR decomposition
-	work = malloc(sizeof(double)*(lapack_int)lwork);
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, pvt, tau, work, (lapack_int)lwork);
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, pvt, tau, matrix_workspace, (lapack_int)lwork);
 	assert(info == 0);
 
 	// Query for ideal work size
 	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, tau, q->a, q->lda, &lwork, -1);
 	assert(info == 0);
+
+	workspace_ensure((lapack_int)lwork);
 	
 	// Construct identity matrix in q, selecting the last columns from the decomposition
 	for (int i = 0; i < q->n; i++) {
@@ -158,11 +172,9 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 	}
 
 	// Obtain the last columns by matrix multiplication
-	work = realloc(work, sizeof(double)*(lapack_int)lwork);
-	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, tau, q->a, q->lda, work, (lapack_int)lwork);
+	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, tau, q->a, q->lda, matrix_workspace, (lapack_int)lwork);
 	assert(info == 0);
 
-	free(work);
 	free(pvt);
 	free(tau);
 }
