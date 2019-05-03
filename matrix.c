@@ -175,10 +175,12 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 	assert(q->n == mat->m);
 	assert(q->m <= mat->m);
 
+	if (!mat->tau) {
+		matrix_qr(mat);
+	}
+
 	double lwork;
 	lapack_int info;
-
-	matrix_qr(mat);
 
 	// Query for ideal work size
 	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, &lwork, -1);
