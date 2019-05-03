@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tgmath.h>
-#include <float.h>
 
 #include <unistd.h>
 
@@ -130,7 +129,7 @@ int main(int argc, char **argv)
 			matrix_null(vq, c);
 
 			// Determine alpha and k0
-			double alpha = DBL_MAX; int k0;
+			double alpha = INFINITY; int k0;
 			for (int i = 0; i < q+1; i++) {
 				if (c->a[i*c->lda] > 0. && w->a[i*w->lda] / c->a[i*c->lda] < alpha) {
 					alpha = w->a[i*w->lda] / c->a[i*c->lda];
@@ -174,7 +173,7 @@ out:
 	matrix_free(x);
 	matrix_free(vq);
 	matrix_free(v);
-	free(ts);
+	total_sequence_free(ts);
 
 	return EXIT_SUCCESS;
 }
