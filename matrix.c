@@ -40,6 +40,19 @@ void matrix_set(struct matrix *mat, const double *a)
 	}
 }
 
+// mat = b
+void matrix_copy(struct matrix *mat, const struct matrix *b)
+{
+	assert(mat->n == b->n);
+	assert(mat->m == b->m);
+
+	for (int i = 0; i < mat->n; i++) {
+		for (int j = 0; j < mat->m; j++) {
+			mat->a[i*mat->lda + j] = b->a[i*b->lda + j];
+		}
+	}
+}
+
 void matrix_swap(struct matrix *a, struct matrix *b)
 {
 	struct matrix tmp = *a;
@@ -50,7 +63,9 @@ void matrix_swap(struct matrix *a, struct matrix *b)
 void matrix_resize(struct matrix *mat, const int n, const int m)
 {
 	if (mat->lda >= m) {
-		mat->a = realloc(mat->a, sizeof(double)*mat->lda*n);
+		if (mat->n != n) {
+			mat->a = realloc(mat->a, sizeof(double)*mat->lda*n);
+		}
 	} else {
 		mat->a = realloc(mat->a, sizeof(double)*m*n);
 		for (int i = min(mat->n, n)-1; i >= 0; i--) {
@@ -75,6 +90,20 @@ void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
 	}
 }
 
+// mat = alpha*b+beta*c
+void matrix_add(struct matrix *mat, const double alpha, const struct matrix *b, const double beta, const struct matrix *c)
+{
+	assert(mat->n == b->n);
+	assert(mat->m == b->m);
+	assert(mat->n == c->n);
+	assert(mat->m == c->m);
+
+	for (int i = 0; i < mat->n; i++) {
+		for (int j = 0; j < mat->m; j++) {
+			mat->a[i*mat->lda + j] = alpha*b->a[i*b->lda + j] + beta*c->a[i*c->lda + j];
+		}
+	}
+}
 
 // mat = b*c
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c)
@@ -128,7 +157,7 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 		}
 	}
 
-	// Obtain the last rows
+	// Obtain the last columns by matrix multiplication
 	work = realloc(work, sizeof(double)*(lapack_int)lwork);
 	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, tau, q->a, q->lda, work, (lapack_int)lwork);
 	assert(info == 0);
