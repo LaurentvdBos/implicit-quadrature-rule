@@ -27,7 +27,6 @@ void matrix_copy(struct matrix *mat, const struct matrix *b);
 void matrix_resize(struct matrix *mat, const int n, const int m);
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt);
 void matrix_add(struct matrix *mat, const double alpha, const struct matrix *b, const double beta, const struct matrix *c);
-void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c);
 
 void matrix_qr(struct matrix *mat);
 void matrix_qr_null(struct matrix *mat, struct matrix *q);

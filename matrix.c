@@ -135,24 +135,6 @@ void matrix_add(struct matrix *mat, const double alpha, const struct matrix *b, 
 	}
 }
 
-// mat = b*c
-void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c)
-{
-	assert(mat->n == b->n);
-	assert(mat->m == c->m);
-	assert(b->m == c->n);
-
-	for (int i = 0; i < mat->n; i++) {
-		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->lda + j] = 0;
-
-			for (int k = 0; k < c->n; k++) {
-				mat->a[i*mat->lda + j] += b->a[i*b->lda + k]*c->a[k*c->lda + j];
-			}
-		}
-	}
-}
-
 // Calculate QR decomposition of *transpose* of the matrix
 void matrix_qr(struct matrix *mat)
 {
