@@ -69,6 +69,9 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 	}
 
 	if (b->tau) {
+		mat->tau = realloc(mat->tau, min(mat->n, mat->m)*sizeof(double));
+		mat->pvt = realloc(mat->pvt, mat->n*sizeof(lapack_int));
+
 		memcpy(mat->tau, b->tau, min(mat->n, mat->m)*sizeof(double));
 		memcpy(mat->pvt, b->pvt, mat->n*sizeof(lapack_int));
 	}
@@ -98,6 +101,12 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 	}
 	mat->n = n;
 	mat->m = m;
+
+	// A resize always invalidates a QR
+	free(mat->tau);
+	free(mat->pvt);
+	mat->tau = NULL;
+	mat->pvt = NULL;
 }
 
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
@@ -167,10 +176,11 @@ void matrix_qr(struct matrix *mat)
 	assert(info == 0);
 }
 
-// Determine n null vectors of matrix mat and store in q. The current
-// implementation trashes mat. Null vectors are the rows of q. If the number of
-// rows of q is larger than the number of null vectors, no error is reported.
-void matrix_null(struct matrix *mat, struct matrix *q)
+// Determine rightmost vectors of the q matrix stored in the QR decomposition
+// of mat, which are null vectors if mat has a nullspace. If mat is not a QR
+// decomposition, one is constructed. The number of vectors returned is defined
+// by the number of columns of q.
+void matrix_qr_null(struct matrix *mat, struct matrix *q)
 {
 	assert(q->n == mat->m);
 	assert(q->m <= mat->m);
@@ -182,18 +192,18 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 	double lwork;
 	lapack_int info;
 
-	// Query for ideal work size
-	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, &lwork, -1);
-	assert(info == 0);
-
-	workspace_ensure((lapack_int)lwork);
-	
 	// Construct identity matrix in q, selecting the last columns from the decomposition
 	for (int i = 0; i < q->n; i++) {
 		for (int j = 0; j < q->m; j++) {
 			q->a[i*q->lda + j] = (q->n-i == q->m-j ? 1. : 0.);
 		}
 	}
+
+	// Query for ideal work size
+	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, &lwork, -1);
+	assert(info == 0);
+
+	workspace_ensure((lapack_int)lwork);
 
 	// Obtain the last columns by matrix multiplication with Q
 	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, matrix_workspace, (lapack_int)lwork);

@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 			matrix_resize(c, q+1, 1);
 			matrix_resize(vq, v->n, v->m);
 			matrix_copy(vq, v);
-			matrix_null(vq, c);
+			matrix_qr_null(vq, c);
 
 			// Determine alpha and k0
 			double alpha = INFINITY; int k0;
