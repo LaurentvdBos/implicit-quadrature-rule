@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <lapacke.h>
 
@@ -26,6 +27,8 @@ struct matrix *matrix_malloc(int n, int m)
 	mat->n = n;
 	mat->m = m;
 	mat->lda = m;
+	mat->tau = NULL;
+	mat->pvt = NULL;
 	if (n > 0 && m > 0) {
 		mat->a = malloc(sizeof(double)*n*m);
 	} else {
@@ -37,6 +40,8 @@ struct matrix *matrix_malloc(int n, int m)
 void matrix_free(struct matrix *mat)
 {
 	if (mat) {
+		free(mat->tau);
+		free(mat->pvt);
 		free(mat->a);
 		free(mat);
 	}
@@ -61,6 +66,11 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 		for (int j = 0; j < mat->m; j++) {
 			mat->a[i*mat->lda + j] = b->a[i*b->lda + j];
 		}
+	}
+
+	if (b->tau) {
+		memcpy(mat->tau, b->tau, min(mat->n, mat->m)*sizeof(double));
+		memcpy(mat->pvt, b->pvt, mat->n*sizeof(lapack_int));
 	}
 }
 
@@ -134,6 +144,29 @@ void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix 
 	}
 }
 
+// Calculate QR decomposition of *transpose* of the matrix
+void matrix_qr(struct matrix *mat)
+{
+	double lwork;
+	lapack_int info;
+
+	mat->tau = realloc(mat->tau, min(mat->n, mat->m)*sizeof(double));
+	mat->pvt = realloc(mat->pvt, mat->n*sizeof(lapack_int));
+	for (int i = 0; i < mat->n; i++) {
+		mat->pvt[i] = 0;
+	}
+
+	// Query for ideal work size
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt, mat->tau, &lwork, -1);
+	assert(info == 0);
+
+	workspace_ensure((lapack_int)lwork);
+
+	// Determine pivoted QR decomposition
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt, mat->tau, matrix_workspace, (lapack_int)lwork);
+	assert(info == 0);
+}
+
 // Determine n null vectors of matrix mat and store in q. The current
 // implementation trashes mat. Null vectors are the rows of q. If the number of
 // rows of q is larger than the number of null vectors, no error is reported.
@@ -142,24 +175,13 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 	assert(q->n == mat->m);
 	assert(q->m <= mat->m);
 
-	double *tau = calloc(min(mat->n, mat->m), sizeof(double));
-	lapack_int *pvt = calloc(mat->n, sizeof(lapack_int));
-
 	double lwork;
 	lapack_int info;
 
-	// Query for ideal work size
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, pvt, tau, &lwork, -1);
-	assert(info == 0);
-
-	workspace_ensure((lapack_int)lwork);
-
-	// Determine pivoted QR decomposition
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, pvt, tau, matrix_workspace, (lapack_int)lwork);
-	assert(info == 0);
+	matrix_qr(mat);
 
 	// Query for ideal work size
-	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, tau, q->a, q->lda, &lwork, -1);
+	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, &lwork, -1);
 	assert(info == 0);
 
 	workspace_ensure((lapack_int)lwork);
@@ -171,10 +193,7 @@ void matrix_null(struct matrix *mat, struct matrix *q)
 		}
 	}
 
-	// Obtain the last columns by matrix multiplication
-	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, tau, q->a, q->lda, matrix_workspace, (lapack_int)lwork);
+	// Obtain the last columns by matrix multiplication with Q
+	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, matrix_workspace, (lapack_int)lwork);
 	assert(info == 0);
-
-	free(pvt);
-	free(tau);
 }

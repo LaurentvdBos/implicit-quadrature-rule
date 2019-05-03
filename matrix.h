@@ -2,6 +2,7 @@
 #define MATRIX_H
 
 #include <stdio.h>
+#include <lapacke.h>
 
 struct matrix
 {
@@ -13,6 +14,10 @@ struct matrix
 
 	// Array of matrix coefficients in row-major order (n*lda)
 	double *a;
+
+	// These are used by LAPACK to keep track of a QR decomposition
+	double *tau;
+	lapack_int *pvt;
 };
 
 struct matrix *matrix_malloc(int n, int m);
