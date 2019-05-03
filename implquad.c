@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 			w->a[i*w->lda] = w->a[i*w->lda] * (double)k / (double)(k+1);
 		}
 		matrix_resize(w, q+1, 1);
-		w->a[q*w->lda] = 1.l / (double)(k+1);
+		w->a[q*w->lda] = 1. / (double)(k+1);
 
 		// Add column to v
 		matrix_resize(v, n, q+1);
