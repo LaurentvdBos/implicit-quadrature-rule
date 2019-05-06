@@ -28,8 +28,7 @@ struct matrix *matrix_malloc(int n, int m)
 	mat->m = m;
 	mat->lda = m;
 	mat->tau = NULL;
-	mat->ipvt = NULL;
-	mat->jpvt = NULL;
+	mat->pvt = NULL;
 	if (n > 0 && m > 0) {
 		mat->a = malloc(sizeof(double)*n*m);
 	} else {
@@ -42,8 +41,7 @@ void matrix_free(struct matrix *mat)
 {
 	if (mat) {
 		free(mat->tau);
-		free(mat->ipvt);
-		free(mat->jpvt);
+		free(mat->pvt);
 		free(mat->a);
 		free(mat);
 	}
@@ -74,13 +72,9 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 		mat->tau = realloc(mat->tau, min(mat->n, mat->m)*sizeof(double));
 		memcpy(mat->tau, b->tau, min(mat->n, mat->m)*sizeof(double));
 	}
-	if (b->ipvt) {
-		mat->ipvt = realloc(mat->ipvt, mat->n*sizeof(lapack_int));
-		memcpy(mat->ipvt, b->ipvt, mat->n*sizeof(lapack_int));
-	}
-	if (b->jpvt) {
-		mat->jpvt = realloc(mat->jpvt, mat->n*sizeof(lapack_int));
-		memcpy(mat->jpvt, b->jpvt, mat->n*sizeof(lapack_int));
+	if (b->pvt) {
+		mat->pvt = realloc(mat->pvt, mat->n*sizeof(lapack_int));
+		memcpy(mat->pvt, b->pvt, mat->n*sizeof(lapack_int));
 	}
 }
 
@@ -111,11 +105,9 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 
 	// A resize always invalidates a QR or LU decomposition
 	free(mat->tau);
-	free(mat->ipvt);
-	free(mat->jpvt);
+	free(mat->pvt);
 	mat->tau = NULL;
-	mat->ipvt = NULL;
-	mat->jpvt = NULL;
+	mat->pvt = NULL;
 }
 
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
@@ -170,21 +162,20 @@ void matrix_qr(struct matrix *mat)
 	lapack_int info;
 
 	mat->tau = realloc(mat->tau, min(mat->n, mat->m)*sizeof(double));
-	mat->ipvt = realloc(mat->ipvt, mat->n*sizeof(lapack_int));
-	free(mat->jpvt);
+	mat->pvt = realloc(mat->pvt, mat->n*sizeof(lapack_int));
 
 	for (int i = 0; i < mat->n; i++) {
-		mat->ipvt[i] = 0;
+		mat->pvt[i] = 0;
 	}
 
 	// Query for ideal work size
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->ipvt, mat->tau, &lwork, -1);
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt, mat->tau, &lwork, -1);
 	assert(info == 0);
 
 	workspace_ensure((lapack_int)lwork);
 
 	// Determine pivoted QR decomposition
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->ipvt, mat->tau, matrix_workspace, (lapack_int)lwork);
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt, mat->tau, matrix_workspace, (lapack_int)lwork);
 	assert(info == 0);
 }
 
@@ -225,9 +216,11 @@ void matrix_qr_null(struct matrix *mat, struct matrix *q)
 // Determine LU decomposition of A^T
 void matrix_lu(struct matrix *mat)
 {
-	mat->ipvt = realloc(mat->ipvt, mat->n*sizeof(lapack_int));
+	mat->pvt = realloc(mat->pvt, mat->n*sizeof(lapack_int));
+	free(mat->tau);
+	mat->tau = NULL;
 
-	lapack_int info = LAPACKE_dgetrf_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->ipvt);
+	lapack_int info = LAPACKE_dgetrf_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt);
 	assert(info == 0);
 }
 
@@ -241,6 +234,6 @@ void matrix_lu_solve(struct matrix *mat, struct matrix *b)
 	assert(b->lda == b->m); // TODO: fix this using a `compact' function?
 
 	// TODO: solve using transpose of A? Then we can directly solve the linear system?
-	lapack_int info = LAPACKE_dgetrs_work(LAPACK_COL_MAJOR, 'N', mat->n, 1, mat->a, mat->lda, mat->ipvt, b->a, b->n);
+	lapack_int info = LAPACKE_dgetrs_work(LAPACK_COL_MAJOR, 'N', mat->n, 1, mat->a, mat->lda, mat->pvt, b->a, b->n);
 	assert(info == 0);
 }

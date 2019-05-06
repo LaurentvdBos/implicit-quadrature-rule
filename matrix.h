@@ -15,9 +15,10 @@ struct matrix
 	// Array of matrix coefficients in row-major order (n*lda)
 	double *a;
 
-	// These are used by LAPACK to store a QR decomposition
+	// These are used by LAPACK to store a decomposition
+	// QR used both tau and pvt; LU only uses pvt
 	double *tau;
-	lapack_int *ipvt, *jpvt;
+	lapack_int *pvt;
 };
 
 struct matrix *matrix_malloc(int n, int m);
