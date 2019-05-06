@@ -119,7 +119,7 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 		// Extract rows y from null space and put as *columns* in lu
 		for (int i = 0; i < nz; i++) {
 			for (int j = 0; j < nz; j++) {
-				lu->a[j*lu->lda + i] = N->a[y[i]*N->lda + j];
+				lu->a[i*lu->lda + j] = N->a[y[i]*N->lda + j];
 			}
 			rhs->a[i*rhs->lda] = w->a[y[i]*w->lda];
 		}
@@ -329,7 +329,7 @@ int main(int argc, char **argv)
 			matrix_resize(dvec, q+1, 1);
 			for (int i = 0; i < v->m-v->n; i++) {
 				for (int j = 0; j < nz; j++) {
-					lu->a[j*lu->lda + i] = c->a[yhat[i]*c->lda + j];
+					lu->a[i*lu->lda + j] = c->a[yhat[i]*c->lda + j];
 				}
 				rhs->a[i*rhs->lda] = w->a[yhat[i]*w->lda];
 			}

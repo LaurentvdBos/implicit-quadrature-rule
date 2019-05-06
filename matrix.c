@@ -110,6 +110,19 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 	mat->pvt = NULL;
 }
 
+void matrix_shrink_to_fit(struct matrix *mat)
+{
+	if (mat->lda > mat->m) {
+		for (int i = 0; i < mat->n; i++) {
+			for (int j = 0; j < mat->m; j++) {
+				mat->a[i*mat->m + j] = mat->a[i*mat->lda + j];
+			}
+		}
+		mat->lda = mat->m;
+		mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
+	}
+}
+
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
 {
 	for (int i = 0; i < mat->n; i++) {
@@ -223,16 +236,15 @@ void matrix_lu(struct matrix *mat)
 	assert(info == 0);
 }
 
-// Solve A^T x = b^T using LU decomposition of A
-// TODO: fix that b = b^T or something like that!
+// Use LU decomposition of A^T to solve Ax = b for vector b
 void matrix_lu_solve(struct matrix *mat, struct matrix *b)
 {
 	assert(mat->n == mat->m);
 	assert(b->n == mat->m);
 	assert(b->m == 1);
-	assert(b->lda == b->m); // TODO: fix this using a `compact' function?
 
-	// TODO: solve using transpose of A? Then we can directly solve the linear system?
-	lapack_int info = LAPACKE_dgetrs_work(LAPACK_COL_MAJOR, 'N', mat->n, 1, mat->a, mat->lda, mat->pvt, b->a, b->n);
+	matrix_shrink_to_fit(b);
+
+	lapack_int info = LAPACKE_dgetrs_work(LAPACK_COL_MAJOR, 'T', mat->n, 1, mat->a, mat->lda, mat->pvt, b->a, b->n);
 	assert(info == 0);
 }
