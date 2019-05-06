@@ -41,7 +41,7 @@ void usage(const char *myname)
 
 	fprintf(stderr, "Options with a + expect a number. Order of options is not important.\n\n");
 	fprintf(stderr, "Compulsory options:\n");
-	fprintf(stderr, "  -d+ Dimension of the sample space; the samples can be provided unstructed\n");
+	fprintf(stderr, "  -d+ Dimension of the sample space; the samples can be provided unstructured\n");
 	fprintf(stderr, "  -n+ Number of nodes in the obtained quadrature rule\n\n");
 
 	fprintf(stderr, "Optional options (defaults to -xwqm0):\n");
@@ -50,8 +50,8 @@ void usage(const char *myname)
 	                "      the first m samples.\n");
 	fprintf(stderr, "  -y+ Total number of samples provided. If provided, prints a progress\n"
 	                "      bar to stderr.\n\n");
-	fprintf(stderr, "  -x  Do not print nodes\n");
-	fprintf(stderr, "  -w  Do not print weights\n");
+	fprintf(stderr, "  -x  Print nodes\n");
+	fprintf(stderr, "  -w  Print weights\n");
 	fprintf(stderr, "  -i  Print indices of samples used. List of samples is zero-indexed.\n");
 	fprintf(stderr, "  -q  Print nodes and weights seperately (otherwise as one big matrix)\n\n");
 
