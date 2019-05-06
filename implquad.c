@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <float.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +19,7 @@
 #define PROGRESS_BAR 78
 
 int d = 0, n = 0, m = 0, K = 0;
+bool print_nodes = true, print_weights = true, print_index = false, pretty_print = true;
 struct total_sequence *ts;
 
 extern double *matrix_workspace;
@@ -39,6 +41,10 @@ void usage(const char *myname)
 	                "      the first m samples.\n");
 	fprintf(stderr, "  -y+ Total number of samples provided. If provided, prints a progress\n"
 	                "      bar to stderr.\n\n");
+	fprintf(stderr, "  -x  Do not print nodes\n");
+	fprintf(stderr, "  -w  Do not print weights\n");
+	fprintf(stderr, "  -i  Print indices of samples used. List of samples is zero-indexed.\n");
+	fprintf(stderr, "  -q  Print nodes and weights seperately (otherwise as one big matrix)\n\n");
 
 	lapack_int major, minor, patch;
 	LAPACKE_ilaver(&major, &minor, &patch);
@@ -251,7 +257,7 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
-	while ((opt = getopt(argc, argv, "d:n:m:P:y:h?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:n:m:P:y:xwiqh?")) != -1) {
 		switch (opt) {
 			case 'd':
 				d = atoi(optarg);
@@ -265,6 +271,18 @@ int main(int argc, char **argv)
 			case 'P':
 			case 'y':
 				K = atoi(optarg);
+				break;
+			case 'x':
+				print_nodes = !print_nodes;
+				break;
+			case 'w':
+				print_weights = !print_weights;
+				break;
+			case 'i':
+				print_index = !print_index;
+				break;
+			case 'q':
+				pretty_print = !pretty_print;
 				break;
 			case 'h':
 			case '?':
@@ -284,6 +302,10 @@ int main(int argc, char **argv)
 		usage(argv[0]);
 		return EXIT_FAILURE;
 	}
+	if (!print_nodes && !print_weights && !print_index) {
+		fprintf(stderr, "Nothing to do.\n");
+		return EXIT_SUCCESS;
+	}
 
 	// Initialize total sequence
 	ts = total_sequence_alloc(d);
@@ -297,6 +319,9 @@ int main(int argc, char **argv)
 	
 	// List of weights
 	struct matrix *w = matrix_malloc(0, 1);
+
+	// Index of nodes
+	int *index = NULL;
 
 	// Null space
 	struct matrix *c = matrix_malloc(0, 0);
@@ -344,6 +369,10 @@ int main(int argc, char **argv)
 		matrix_resize(w, q+1, 1);
 		w->a[q*w->ncols] = 1. / (double)(k+1);
 
+		// Add index
+		index = realloc(index, (q+1)*sizeof(int));
+		index[q] = k;
+
 		// Add column to v
 		matrix_resize(v, n, q+1);
 		vdm_col(v, y);
@@ -383,6 +412,7 @@ int main(int argc, char **argv)
 			for (int k0 = nz-1; k0 >= 0; k0--) {
 				if (yhat[k0] >= m) {
 					w->a[yhat[k0]*w->ncols] = w->a[q*w->ncols];
+					index[yhat[k0]] = index[q];
 					for (int j = 0; j < d; j++) {
 						x->a[yhat[k0]*x->ncols + j] = x->a[q*x->ncols + j];
 					}
@@ -408,18 +438,51 @@ out:
 		fprintf(stderr, "\n");
 	}
 	
-	// Print list of nodes; these outputs should be cleared up in the future
-	printf("Nodes:\n");
-	for (int i = 0; i < x->n; i++) {
-		for (int j = 0; j < x->m; j++) {
-			printf("%.*e ", DBL_DIG, x->a[i*x->ncols]);
+	if (pretty_print) {
+		if (print_nodes) {
+			printf("Nodes:\n");
+			for (int i = 0; i < x->n; i++) {
+				for (int j = 0; j < x->m; j++) {
+					printf("%.*e ", DBL_DECIMAL_DIG, x->a[i*x->ncols + j]);
+				}
+				printf("\n");
+			}
+			if (print_weights || print_index) {
+				printf("\n");
+			}
 		}
-		printf("\n");
-	}
 
-	printf("\nWeights:\n");
-	for (int i = 0; i < w->n; i++) {
-		printf("%.*e\n", DBL_DIG, w->a[i*w->ncols]);
+		if (print_weights) {
+			printf("Weights:\n");
+			for (int i = 0; i < w->n; i++) {
+				printf("%.*e\n", DBL_DECIMAL_DIG, w->a[i*w->ncols]);
+			}
+			if (print_index) {
+				printf("\n");
+			}
+		}
+
+		if (print_index) {
+			printf("Index:\n");
+			for (int i = 0; i < w->n; i++) {
+				printf("%d\n", index[i]);
+			}
+		}
+	} else {
+		for (int i = 0; i < x->n; i++) {
+			if (print_index) {
+				printf("%d ", index[i]);
+			}
+			if (print_nodes) {
+				for (int j = 0; j < x->m; j++) {
+					printf("%.*e ", DBL_DECIMAL_DIG, x->a[i*x->ncols + j]);
+				}
+			}
+			if (print_weights) {
+				printf("%.*e", DBL_DECIMAL_DIG, w->a[i*w->ncols]);
+			}
+			printf("\n");
+		}
 	}
 
 	// Clean up
