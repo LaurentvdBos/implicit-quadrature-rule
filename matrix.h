@@ -15,9 +15,9 @@ struct matrix
 	// Array of matrix coefficients in row-major order (n*lda)
 	double *a;
 
-	// These are used by LAPACK to keep track of a QR decomposition
+	// These are used by LAPACK to store a QR decomposition
 	double *tau;
-	lapack_int *pvt;
+	lapack_int *ipvt, *jpvt;
 };
 
 struct matrix *matrix_malloc(int n, int m);
@@ -27,8 +27,12 @@ void matrix_copy(struct matrix *mat, const struct matrix *b);
 void matrix_resize(struct matrix *mat, const int n, const int m);
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt);
 void matrix_add(struct matrix *mat, const double alpha, const struct matrix *b, const double beta, const struct matrix *c);
+void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c);
 
 void matrix_qr(struct matrix *mat);
 void matrix_qr_null(struct matrix *mat, struct matrix *q);
+
+void matrix_lu(struct matrix *mat);
+void matrix_lu_solve(struct matrix *mat, struct matrix *b);
 
 #endif
