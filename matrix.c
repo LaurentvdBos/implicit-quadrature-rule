@@ -78,13 +78,6 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 	}
 }
 
-void matrix_swap(struct matrix *a, struct matrix *b)
-{
-	struct matrix tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
-
 void matrix_resize(struct matrix *mat, const int n, const int m)
 {
 	if (mat->ncols >= m) {
