@@ -133,21 +133,6 @@ void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
 	}
 }
 
-// mat = alpha*b+beta*c
-void matrix_add(struct matrix *mat, const double alpha, const struct matrix *b, const double beta, const struct matrix *c)
-{
-	assert(mat->n == b->n);
-	assert(mat->m == b->m);
-	assert(mat->n == c->n);
-	assert(mat->m == c->m);
-
-	for (int i = 0; i < mat->n; i++) {
-		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->ncols + j] = alpha*b->a[i*b->ncols + j] + beta*c->a[i*c->ncols + j];
-		}
-	}
-}
-
 // mat = b*c
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c)
 {
