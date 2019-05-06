@@ -6,11 +6,11 @@
 
 struct matrix
 {
-	// Size of the matrix
+	// Number of rows/columns in the matrix
 	int n, m;
 
-	// Number of columns in the data structure, which can be larger than m
-	int ncols;
+	// Number of rows/columns in the data structure, which can be larger than n/m
+	int nrows, ncols;
 
 	// Array of matrix coefficients in row-major order (n*lda)
 	double *a;

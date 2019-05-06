@@ -26,6 +26,7 @@ struct matrix *matrix_malloc(int n, int m)
 	struct matrix *mat = malloc(sizeof(struct matrix));
 	mat->n = n;
 	mat->m = m;
+	mat->nrows = n;
 	mat->ncols = m;
 	mat->tau = NULL;
 	mat->pvt = NULL;
@@ -81,11 +82,15 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 void matrix_resize(struct matrix *mat, const int n, const int m)
 {
 	if (mat->ncols >= m) {
-		if (mat->n != n) {
+		if (mat->nrows < n) {
 			mat->a = realloc(mat->a, sizeof(double)*mat->ncols*n);
+			mat->nrows = n;
 		}
 	} else {
-		mat->a = realloc(mat->a, sizeof(double)*m*n);
+		if (mat->nrows < n) {
+			mat->nrows = n;
+		}
+		mat->a = realloc(mat->a, sizeof(double)*m*mat->nrows);
 		for (int i = min(mat->n, n)-1; i >= 0; i--) {
 			for (int j = mat->m-1; j >= 0; j--) {
 				mat->a[i*m + j] = mat->a[i*mat->ncols + j];
@@ -111,9 +116,10 @@ void matrix_shrink_to_fit(struct matrix *mat)
 				mat->a[i*mat->m + j] = mat->a[i*mat->ncols + j];
 			}
 		}
-		mat->ncols = mat->m;
-		mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
 	}
+	mat->ncols = mat->m;
+	mat->nrows = mat->n;
+	mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
 }
 
 void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
