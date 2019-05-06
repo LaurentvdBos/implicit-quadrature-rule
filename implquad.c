@@ -360,7 +360,6 @@ int main(int argc, char **argv)
 			fprintf(stderr, "]");
 		}
 				
-
 		// Read a node
 		for (int i = 0; i < d; i++) {
 			if (scanf(" %lf", &y[i]) == EOF) {
