@@ -343,6 +343,9 @@ int main(int argc, char **argv)
 	struct matrix *rhs = matrix_malloc(0, 0);
 	struct matrix *dvec = matrix_malloc(0, 0);
 
+	// Storage for the best removal
+	int *yhat = NULL;
+
 	// Current sample
 	double *y = malloc(d*sizeof(double));
 
@@ -398,7 +401,7 @@ int main(int argc, char **argv)
 			matrix_qr_null(vq, c);
 
 			// Allocate space for the best removal
-			int *yhat = malloc(nz*sizeof(int));
+			yhat = realloc(yhat, nz*sizeof(int));
 			implremovals(yhat, c, w);
 
 			// Cool apply that
@@ -436,9 +439,6 @@ int main(int argc, char **argv)
 					w->a[yhat[k0]*w->ncols] = 0.;
 				}
 			}
-
-			// Free up the space
-			free(yhat);
 
 			// Resize
 			matrix_resize(x, q+1, d);
@@ -501,6 +501,7 @@ out:
 
 	// Clean up
 	free(y);
+	free(yhat);
 	free(index);
 	matrix_free(lu);
 	matrix_free(rhs);
