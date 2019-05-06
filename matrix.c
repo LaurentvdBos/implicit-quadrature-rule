@@ -122,17 +122,6 @@ void matrix_shrink_to_fit(struct matrix *mat)
 	mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
 }
 
-void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
-{
-	for (int i = 0; i < mat->n; i++) {
-		for (int j = 0; j < mat->m; j++) {
-			fprintf(f, fmt, mat->a[i*mat->ncols + j]);
-			fputc(' ', f);
-		}
-		fputc('\n', f);
-	}
-}
-
 // mat = b*c
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c)
 {

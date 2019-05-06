@@ -5,6 +5,7 @@
 #include "stack.h"
 
 #include <assert.h>
+#include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -368,10 +369,17 @@ out:
 	
 	// Print list of nodes; these outputs should be cleared up in the future
 	printf("Nodes:\n");
-	matrix_fprintf(stdout, x, "%.10f");
+	for (int i = 0; i < x->n; i++) {
+		for (int j = 0; j < x->m; j++) {
+			printf("%.*e ", DBL_DIG, x->a[i*x->ncols]);
+		}
+		printf("\n");
+	}
 
 	printf("\nWeights:\n");
-	matrix_fprintf(stdout, w, "%.10f");
+	for (int i = 0; i < w->n; i++) {
+		printf("%.*e\n", DBL_DIG, w->a[i*w->ncols]);
+	}
 
 	// Clean up
 	free(y);
