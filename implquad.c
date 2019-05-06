@@ -37,7 +37,7 @@ void usage(const char *myname)
 {
 	fprintf(stderr, "Usage: %s [-d dim] [-n number of nodes]\n\n", myname);
 	fprintf(stderr, "This program starts reading samples from standard input until eof and\n"
-	                "prints the quadrature consisting on n nodes to standard output.\n\n");
+	                "prints the quadrature consisting of n nodes to standard output.\n\n");
 
 	fprintf(stderr, "Options with a + expect a number. Order of options is not important.\n\n");
 	fprintf(stderr, "Compulsory options:\n");
