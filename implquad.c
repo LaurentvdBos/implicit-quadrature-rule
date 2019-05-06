@@ -11,9 +11,13 @@
 #include <string.h>
 #include <tgmath.h>
 
+#include <lapacke.h>
 #include <unistd.h>
 
-int d = 0, n = 0, m = 0;
+// Size of the progressbar
+#define PROGRESS_BAR 78
+
+int d = 0, n = 0, m = 0, P = 0;
 struct total_sequence *ts;
 
 extern double *matrix_workspace;
@@ -22,7 +26,23 @@ void usage(const char *myname)
 {
 	fprintf(stderr, "Usage: %s [-d dim] [-n number of nodes]\n\n", myname);
 	fprintf(stderr, "This program start reading samples from standard input until eof and\n"
-	                "prints the quadrature consisting on n nodes to standard output.\n");
+	                "prints the quadrature consisting on n nodes to standard output.\n\n");
+
+	fprintf(stderr, "Options with a + expect a number. Order of options is not important.\n\n");
+	fprintf(stderr, "Compulsory options:\n");
+	fprintf(stderr, "  -d+ Dimension of the sample space; the samples can be provided unstructed\n");
+	fprintf(stderr, "  -n+ Number of nodes in the obtained quadrature rule\n\n");
+
+	fprintf(stderr, "Optional options (defaults to -xwqm0):\n");
+	fprintf(stderr, "  -m+ Number of nodes that should be preserved in the rule. Providing a\n"
+	                "      non-zero integer yields a quadrature rule that at least contains\n"
+	                "      the first m samples.\n");
+	fprintf(stderr, "  -P+ Total number of samples provided. If provided, prints a progress\n"
+	                "      bar to stderr.\n\n");
+
+	lapack_int major, minor, patch;
+	LAPACKE_ilaver(&major, &minor, &patch);
+	fprintf(stderr, "This %s uses LAPACK %d.%d.%d\n", myname, major, minor, patch);
 }
 
 void vdm_col(struct matrix *v, double *y)
@@ -231,7 +251,7 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
-	while ((opt = getopt(argc, argv, "d:n:m:h?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:n:m:P:h?")) != -1) {
 		switch (opt) {
 			case 'd':
 				d = atoi(optarg);
@@ -241,6 +261,9 @@ int main(int argc, char **argv)
 				break;
 			case 'm':
 				m = atoi(optarg);
+				break;
+			case 'P':
+				P = atoi(optarg);
 				break;
 			case 'h':
 			case '?':
@@ -285,8 +308,21 @@ int main(int argc, char **argv)
 	// Current sample
 	double *y = malloc(sizeof(double)*d);
 
+	// Keep track of progress
+	int p = 0;
+
 	// Enter main loop; q denotes number of nodes, k number of samples
 	for (int q = 0, k = 0; ; q++, k++) {
+		if (P > 0 && k*PROGRESS_BAR > p*P) {
+			p++;
+			fprintf(stderr, "\r[");
+			for (int i = 0; i < PROGRESS_BAR; i++) {
+				fprintf(stderr, (i <= p ? "=" : " "));
+			}
+			fprintf(stderr, "]");
+		}
+				
+
 		// Read a node
 		for (int i = 0; i < d; i++) {
 			if (scanf(" %lf", &y[i]) == EOF) {
@@ -366,6 +402,10 @@ int main(int argc, char **argv)
 		}
 	}
 out:
+
+	if (P > 0) {
+		fprintf(stderr, "\n");
+	}
 	
 	// Print list of nodes; these outputs should be cleared up in the future
 	printf("Nodes:\n");
