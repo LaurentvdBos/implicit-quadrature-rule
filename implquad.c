@@ -13,7 +13,16 @@
 #include <tgmath.h>
 
 #include <lapacke.h>
-#include <unistd.h>
+#include <getopt.h>
+
+// DBL_DECIMAL_DIG is C11 and later only
+#ifndef DBL_DECIMAL_DIG
+  #ifdef DECIMAL_DIG
+    #define DBL_DECIMAL_DIG DECIMAL_DIG
+  #else
+    #define DBL_DECIMAL_DIG 16
+  #endif
+#endif
 
 // Size of the progressbar
 #define PROGRESS_BAR 78
@@ -257,6 +266,7 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
+	extern char *optarg;
 	while ((opt = getopt(argc, argv, "d:n:m:P:y:xwiqh?")) != -1) {
 		switch (opt) {
 			case 'd':
