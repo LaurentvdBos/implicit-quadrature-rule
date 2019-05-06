@@ -15,7 +15,7 @@ struct trie *trie_alloc()
 void trie_free(struct trie *root)
 {
 	if (root) {
-		for (unsigned int i = 0; i < root->len; i++) {
+		for (int i = 0; i < root->len; i++) {
 			trie_free(root->next[i]);
 		}
 
@@ -24,7 +24,7 @@ void trie_free(struct trie *root)
 	}
 }
 
-void trie_add(struct trie *root, unsigned int *a, int n)
+void trie_add(struct trie *root, int *a, int n)
 {
 	struct trie *ptr = root;
 
@@ -47,7 +47,7 @@ void trie_add(struct trie *root, unsigned int *a, int n)
 	ptr->end = true;
 }
 
-bool trie_contains(struct trie *root, unsigned int *a, int n)
+bool trie_contains(struct trie *root, int *a, int n)
 {
 	struct trie *ptr = root;
 
