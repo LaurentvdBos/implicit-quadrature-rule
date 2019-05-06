@@ -83,14 +83,14 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 {
 	if (mat->ncols >= m) {
 		if (mat->nrows < n) {
-			mat->a = realloc(mat->a, sizeof(double)*mat->ncols*n);
+			mat->a = realloc(mat->a, mat->ncols*n*sizeof(double));
 			mat->nrows = n;
 		}
 	} else {
 		if (mat->nrows < n) {
 			mat->nrows = n;
 		}
-		mat->a = realloc(mat->a, sizeof(double)*m*mat->nrows);
+		mat->a = realloc(mat->a, m*mat->nrows*sizeof(double));
 		for (int i = min(mat->n, n)-1; i >= 0; i--) {
 			for (int j = mat->m-1; j >= 0; j--) {
 				mat->a[i*m + j] = mat->a[i*mat->ncols + j];
