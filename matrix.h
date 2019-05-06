@@ -9,8 +9,8 @@ struct matrix
 	// Size of the matrix
 	int n, m;
 
-	// Leading dimension, i.e. number of columns in the data structure
-	int lda;
+	// Number of columns in the data structure, which can be larger than m
+	int ncols;
 
 	// Array of matrix coefficients in row-major order (n*lda)
 	double *a;

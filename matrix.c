@@ -26,7 +26,7 @@ struct matrix *matrix_malloc(int n, int m)
 	struct matrix *mat = malloc(sizeof(struct matrix));
 	mat->n = n;
 	mat->m = m;
-	mat->lda = m;
+	mat->ncols = m;
 	mat->tau = NULL;
 	mat->pvt = NULL;
 	if (n > 0 && m > 0) {
@@ -51,7 +51,7 @@ void matrix_set(struct matrix *mat, const double *a)
 {
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->lda + j] = a[i*mat->m + j];
+			mat->a[i*mat->ncols + j] = a[i*mat->m + j];
 		}
 	}
 }
@@ -64,7 +64,7 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->lda + j] = b->a[i*b->lda + j];
+			mat->a[i*mat->ncols + j] = b->a[i*b->ncols + j];
 		}
 	}
 
@@ -87,18 +87,18 @@ void matrix_swap(struct matrix *a, struct matrix *b)
 
 void matrix_resize(struct matrix *mat, const int n, const int m)
 {
-	if (mat->lda >= m) {
+	if (mat->ncols >= m) {
 		if (mat->n != n) {
-			mat->a = realloc(mat->a, sizeof(double)*mat->lda*n);
+			mat->a = realloc(mat->a, sizeof(double)*mat->ncols*n);
 		}
 	} else {
 		mat->a = realloc(mat->a, sizeof(double)*m*n);
 		for (int i = min(mat->n, n)-1; i >= 0; i--) {
 			for (int j = mat->m-1; j >= 0; j--) {
-				mat->a[i*m + j] = mat->a[i*mat->lda + j];
+				mat->a[i*m + j] = mat->a[i*mat->ncols + j];
 			}
 		}
-		mat->lda = m;
+		mat->ncols = m;
 	}
 	mat->n = n;
 	mat->m = m;
@@ -112,13 +112,13 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 
 void matrix_shrink_to_fit(struct matrix *mat)
 {
-	if (mat->lda > mat->m) {
+	if (mat->ncols > mat->m) {
 		for (int i = 0; i < mat->n; i++) {
 			for (int j = 0; j < mat->m; j++) {
-				mat->a[i*mat->m + j] = mat->a[i*mat->lda + j];
+				mat->a[i*mat->m + j] = mat->a[i*mat->ncols + j];
 			}
 		}
-		mat->lda = mat->m;
+		mat->ncols = mat->m;
 		mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
 	}
 }
@@ -127,7 +127,7 @@ void matrix_fprintf(FILE *f, const struct matrix *mat, const char *fmt)
 {
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			fprintf(f, fmt, mat->a[i*mat->lda + j]);
+			fprintf(f, fmt, mat->a[i*mat->ncols + j]);
 			fputc(' ', f);
 		}
 		fputc('\n', f);
@@ -144,7 +144,7 @@ void matrix_add(struct matrix *mat, const double alpha, const struct matrix *b, 
 
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->lda + j] = alpha*b->a[i*b->lda + j] + beta*c->a[i*c->lda + j];
+			mat->a[i*mat->ncols + j] = alpha*b->a[i*b->ncols + j] + beta*c->a[i*c->ncols + j];
 		}
 	}
 }
@@ -158,10 +158,10 @@ void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix 
 
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->lda + j] = 0;
+			mat->a[i*mat->ncols + j] = 0;
 
 			for (int k = 0; k < c->n; k++) {
-				mat->a[i*mat->lda + j] += b->a[i*b->lda + k]*c->a[k*c->lda + j];
+				mat->a[i*mat->ncols + j] += b->a[i*b->ncols + k]*c->a[k*c->ncols + j];
 			}
 		}
 	}
@@ -181,13 +181,13 @@ void matrix_qr(struct matrix *mat)
 	}
 
 	// Query for ideal work size
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt, mat->tau, &lwork, -1);
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->ncols, mat->pvt, mat->tau, &lwork, -1);
 	assert(info == 0);
 
 	workspace_ensure((lapack_int)lwork);
 
 	// Determine pivoted QR decomposition
-	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt, mat->tau, matrix_workspace, (lapack_int)lwork);
+	info = LAPACKE_dgeqp3_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->ncols, mat->pvt, mat->tau, matrix_workspace, (lapack_int)lwork);
 	assert(info == 0);
 }
 
@@ -210,18 +210,18 @@ void matrix_qr_null(struct matrix *mat, struct matrix *q)
 	// Construct identity matrix in q, selecting the last columns from the decomposition
 	for (int i = 0; i < q->n; i++) {
 		for (int j = 0; j < q->m; j++) {
-			q->a[i*q->lda + j] = (q->n-i == q->m-j ? 1. : 0.);
+			q->a[i*q->ncols + j] = (q->n-i == q->m-j ? 1. : 0.);
 		}
 	}
 
 	// Query for ideal work size
-	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, &lwork, -1);
+	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->ncols, mat->tau, q->a, q->ncols, &lwork, -1);
 	assert(info == 0);
 
 	workspace_ensure((lapack_int)lwork);
 
 	// Obtain the last columns by matrix multiplication with Q
-	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->lda, mat->tau, q->a, q->lda, matrix_workspace, (lapack_int)lwork);
+	info = LAPACKE_dormqr_work(LAPACK_COL_MAJOR, 'R', 'T', q->m, q->n, min(mat->n, mat->m), mat->a, mat->ncols, mat->tau, q->a, q->ncols, matrix_workspace, (lapack_int)lwork);
 	assert(info == 0);
 }
 
@@ -232,7 +232,7 @@ void matrix_lu(struct matrix *mat)
 	free(mat->tau);
 	mat->tau = NULL;
 
-	lapack_int info = LAPACKE_dgetrf_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->lda, mat->pvt);
+	lapack_int info = LAPACKE_dgetrf_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->ncols, mat->pvt);
 	assert(info == 0);
 }
 
@@ -245,6 +245,6 @@ void matrix_lu_solve(struct matrix *mat, struct matrix *b)
 
 	matrix_shrink_to_fit(b);
 
-	lapack_int info = LAPACKE_dgetrs_work(LAPACK_COL_MAJOR, 'T', mat->n, 1, mat->a, mat->lda, mat->pvt, b->a, b->n);
+	lapack_int info = LAPACKE_dgetrs_work(LAPACK_COL_MAJOR, 'T', mat->n, 1, mat->a, mat->ncols, mat->pvt, b->a, b->n);
 	assert(info == 0);
 }
