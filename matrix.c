@@ -154,7 +154,6 @@ void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix 
 	}
 }
 
-
 // Calculate QR decomposition of *transpose* of the matrix
 void matrix_qr(struct matrix *mat)
 {
