@@ -17,7 +17,7 @@
 // Size of the progressbar
 #define PROGRESS_BAR 78
 
-int d = 0, n = 0, m = 0, P = 0;
+int d = 0, n = 0, m = 0, K = 0;
 struct total_sequence *ts;
 
 extern double *matrix_workspace;
@@ -37,7 +37,7 @@ void usage(const char *myname)
 	fprintf(stderr, "  -m+ Number of nodes that should be preserved in the rule. Providing a\n"
 	                "      non-zero integer yields a quadrature rule that at least contains\n"
 	                "      the first m samples.\n");
-	fprintf(stderr, "  -P+ Total number of samples provided. If provided, prints a progress\n"
+	fprintf(stderr, "  -y+ Total number of samples provided. If provided, prints a progress\n"
 	                "      bar to stderr.\n\n");
 
 	lapack_int major, minor, patch;
@@ -251,7 +251,7 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
-	while ((opt = getopt(argc, argv, "d:n:m:P:h?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:n:m:P:y:h?")) != -1) {
 		switch (opt) {
 			case 'd':
 				d = atoi(optarg);
@@ -263,7 +263,8 @@ int main(int argc, char **argv)
 				m = atoi(optarg);
 				break;
 			case 'P':
-				P = atoi(optarg);
+			case 'y':
+				K = atoi(optarg);
 				break;
 			case 'h':
 			case '?':
@@ -313,7 +314,7 @@ int main(int argc, char **argv)
 
 	// Enter main loop; q denotes number of nodes, k number of samples
 	for (int q = 0, k = 0; ; q++, k++) {
-		if (P > 0 && k*PROGRESS_BAR > p*P) {
+		if (K > 0 && k*PROGRESS_BAR > p*K) {
 			p++;
 			fprintf(stderr, "\r[");
 			for (int i = 0; i < PROGRESS_BAR; i++) {
@@ -403,7 +404,7 @@ int main(int argc, char **argv)
 	}
 out:
 
-	if (P > 0) {
+	if (K > 0) {
 		fprintf(stderr, "\n");
 	}
 	
