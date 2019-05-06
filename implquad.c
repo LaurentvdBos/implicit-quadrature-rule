@@ -487,6 +487,7 @@ out:
 
 	// Clean up
 	free(y);
+	free(index);
 	matrix_free(lu);
 	matrix_free(rhs);
 	matrix_free(dvec);
