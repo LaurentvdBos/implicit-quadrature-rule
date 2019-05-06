@@ -86,8 +86,9 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 	// Measure for best removal: removes the largest number of nodes right from m
 	int best = 0;
 
-	// Construct initial y to bootstrap procedure
-	int y[nz];
+	// Arrays to keep track of indices that will be made zero
+	int *y = malloc(nz*sizeof(int));
+	int *yt = malloc(nz*sizeof(int));
 
 	struct matrix *NN = matrix_malloc(N->n, N->m);
 	matrix_copy(NN, N);
@@ -230,7 +231,6 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 			}
 
 			// Process y
-			int yt[nz];
 			memcpy(yt, y, nz*sizeof(int));
 			yt[i] = k0;
 			isort(yt, nz);
@@ -248,6 +248,8 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 		}
 	}
 
+	free(y);
+	free(yt);
 	matrix_free(c);
 	matrix_free(ww);
 	matrix_free(rhs);
@@ -396,8 +398,8 @@ int main(int argc, char **argv)
 			matrix_copy(vq, v);
 			matrix_qr_null(vq, c);
 
-			// Allocate space for best removal on stack
-			int yhat[nz];
+			// Allocate space for the best removal
+			int *yhat = malloc(nz*sizeof(int));
 			implremovals(yhat, c, w);
 
 			// Cool apply that
@@ -435,6 +437,9 @@ int main(int argc, char **argv)
 					w->a[yhat[k0]*w->ncols] = 0.;
 				}
 			}
+
+			// Free up the space
+			free(yhat);
 
 			// Resize
 			matrix_resize(x, q+1, d);
