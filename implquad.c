@@ -332,7 +332,7 @@ int main(int argc, char **argv)
 	struct matrix *dvec = matrix_malloc(0, 0);
 
 	// Current sample
-	double *y = malloc(sizeof(double)*d);
+	double *y = malloc(d*sizeof(double));
 
 	// Keep track of progress
 	int p = 0;
