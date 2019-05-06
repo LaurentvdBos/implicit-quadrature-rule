@@ -98,7 +98,7 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 	
 	for (int j = 0; j < nz; j++) {
 		// Determine alpha and k0
-		double alpha = INFINITY; int k0;
+		double alpha = INFINITY; int k0 = -1;
 		for (int i = 0; i < sz; i++) {
 			assert(ww->a[i*ww->ncols] >= 0.);
 
@@ -107,6 +107,7 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 				k0 = i;
 			}
 		}
+		assert(k0 > -1);
 
 		y[j] = k0;
 		if (k0 >= m) {
