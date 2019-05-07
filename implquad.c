@@ -25,7 +25,7 @@
 #endif
 
 // Size of the progressbar
-#define PROGRESS_BAR 78
+#define PROGRESS_BAR 80
 
 int d = 0, n = 0, m = 0, K = 0;
 bool print_nodes = true, print_weights = true, print_index = false, pretty_print = true;
@@ -357,11 +357,7 @@ int main(int argc, char **argv)
 	for (int q = 0, k = 0; ; q++, k++) {
 		if (K > 0 && k*PROGRESS_BAR > p*K) {
 			p++;
-			fprintf(stderr, "\r[");
-			for (int i = 0; i < PROGRESS_BAR; i++) {
-				fprintf(stderr, (i <= p ? "=" : " "));
-			}
-			fprintf(stderr, "]");
+			fprintf(stderr, ".");
 		}
 				
 		// Read a node
