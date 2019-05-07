@@ -1,7 +1,7 @@
 #include "total_sequence.h"
 #include <stdlib.h>
 
-static inline struct node *node_alloc()
+static inline struct node *node_malloc()
 {
 	struct node *tmp = malloc(sizeof(struct node));
 	tmp->next = NULL;
@@ -171,17 +171,17 @@ static void next_permutation(struct total_sequence *ptr)
 	ptr->curr = curr;
 }
 
-struct total_sequence *total_sequence_alloc(unsigned int d)
+struct total_sequence *total_sequence_malloc(unsigned int d)
 {
 	struct total_sequence *ptr = malloc(sizeof(struct total_sequence));
 
 	ptr->d = d;
 	ptr->k = 0;
-	ptr->root = node_alloc();
+	ptr->root = node_malloc();
 	ptr->leaf = ptr->root;
 
 	for (unsigned int i = 1; i < d; i++) {
-		struct node *tmp = node_alloc();
+		struct node *tmp = node_malloc();
 		tmp->next = ptr->root;
 		ptr->root->prev = tmp;
 		ptr->root = tmp;

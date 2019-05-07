@@ -16,7 +16,7 @@ struct trie
 	bool end;
 };
 
-struct trie *trie_alloc();
+struct trie *trie_malloc();
 void trie_free(struct trie *root);
 void trie_add(struct trie *root, int *a, int n);
 bool trie_contains(struct trie *root, int *a, int n);

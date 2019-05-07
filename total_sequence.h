@@ -15,7 +15,7 @@ struct total_sequence
 	unsigned int d;
 };
 
-struct total_sequence *total_sequence_alloc(unsigned int d);
+struct total_sequence *total_sequence_malloc(unsigned int d);
 void total_sequence_free(struct total_sequence *ptr);
 void total_sequence_next(struct total_sequence *ptr);
 

@@ -135,7 +135,7 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 	isort(y, nz);
 	memcpy(ybest, y, nz*sizeof(int));
 
-	struct trie *trie = trie_alloc();
+	struct trie *trie = trie_malloc();
 	trie_add(trie, y, nz);
 	struct stack *todo = NULL;
 	todo = stack_push(todo, best, y, nz);
@@ -321,7 +321,7 @@ int main(int argc, char **argv)
 	}
 
 	// Initialize total sequence
-	ts = total_sequence_alloc(d);
+	ts = total_sequence_malloc(d);
 
 	// Vandermonde-matrix
 	struct matrix *v = matrix_malloc(n, 0);

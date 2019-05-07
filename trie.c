@@ -13,7 +13,7 @@ static inline int find(const int *index, const int what, const int n)
 	return -1;
 }
 
-struct trie *trie_alloc()
+struct trie *trie_malloc()
 {
 	struct trie *root = malloc(sizeof(struct trie));
 	root->len = 0;
@@ -50,7 +50,7 @@ void trie_add(struct trie *root, int *a, int n)
 			ptr->next = realloc(ptr->next, ptr->len*sizeof(struct trie *));
 			ptr->index = realloc(ptr->index, ptr->len*sizeof(int));
 			
-			ptr->next[ptr->len-1] = trie_alloc();
+			ptr->next[ptr->len-1] = trie_malloc();
 			ptr->index[ptr->len-1] = a[i];
 
 			ind = ptr->len-1;
