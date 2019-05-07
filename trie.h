@@ -5,9 +5,14 @@
 
 struct trie
 {
+	// Number of children
 	int len;
-	struct trie **next;
 
+	// Children and their indices
+	struct trie **next;
+	int *index;
+
+	// Whether this one ends a sequence
 	bool end;
 };
 
