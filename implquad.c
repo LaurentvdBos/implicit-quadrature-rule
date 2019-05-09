@@ -271,7 +271,6 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
-	extern char *optarg;
 	while ((opt = getopt(argc, argv, "d:n:m:P:y:xwiqh?")) != -1) {
 		switch (opt) {
 			case 'd':
