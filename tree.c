@@ -76,9 +76,9 @@ void tree_add(struct tree *root, const int *a, const int n)
 	}
 }
 
-bool tree_contains(struct tree *root, const int *a, const int n)
+bool tree_contains(const struct tree *root, const int *a, const int n)
 {
-	struct tree *ptr = root;
+	const struct tree *ptr = root;
 
 	int i = 0;
 
