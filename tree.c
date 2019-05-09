@@ -46,14 +46,14 @@ void tree_add(struct tree *root, int *a, int n)
 		if (compar(ptr->a, a, n) > 0) {
 			if (ptr->left == NULL) {
 				ptr->left = tree_malloc(a, n);
-				return;
+				break;
 			} else {
 				ptr = ptr->left;
 			}
 		} else {
 			if (ptr->right == NULL) {
 				ptr->right = tree_malloc(a, n);
-				return;
+				break;
 			} else {
 				ptr = ptr->right;
 			}
