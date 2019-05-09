@@ -56,21 +56,21 @@ void tree_add(struct tree *root, const int *a, const int n)
 			}
 
 			if (ptr->subtree == NULL) {
-				ptr->subtree = tree_malloc(a + i, n - i);
+				ptr->subtree = tree_malloc(a+i, n-i);
 				break;
 			} else {
 				ptr = ptr->subtree;
 			}
 		} else if (a[i] < ptr->a[0]) {
 			if (ptr->left == NULL) {
-				ptr->left = tree_malloc(a + i, n - i);
+				ptr->left = tree_malloc(a+i, n-i);
 				break;
 			} else {
 				ptr = ptr->left;
 			}
 		} else {
 			if (ptr->right == NULL) {
-				ptr->right = tree_malloc(a + i, n - i);
+				ptr->right = tree_malloc(a+i, n-i);
 				break;
 			} else {
 				ptr = ptr->right;
@@ -86,7 +86,7 @@ bool tree_contains(struct tree *root, const int *a, const int n)
 	int i = 0;
 
 	while (ptr) {
-		int c = compar(ptr->a, a + i, n - i);
+		int c = compar(ptr->a, a+i, n-i);
 
 		if (ptr->a[0] == a[i] && c != 0) {
 			i++;
