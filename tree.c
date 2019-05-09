@@ -67,6 +67,7 @@ bool tree_contains(struct tree *root, int *a, int n)
 
 	while (ptr) {
 		int c = compar(ptr->a, a, n);
+	
 		if (c > 0) {
 			ptr = ptr->left;
 		} else if (c < 0) {
