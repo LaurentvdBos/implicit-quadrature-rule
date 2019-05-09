@@ -5,7 +5,7 @@ LDLIBS = -lm -llapacke
 #LDFLAGS = -static
 #LDLIBS = -Wl,--start-group -lm -llapacke -llapack -lblas -lgfortran -lquadmath -Wl,--end-group
 
-OBJECTS = implquad.o matrix.o isort.o total_sequence.o trie.o
+OBJECTS = implquad.o matrix.o isort.o total_sequence.o tree.o
 
 .PHONY: all clean
 

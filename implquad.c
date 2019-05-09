@@ -1,7 +1,7 @@
 #include "matrix.h"
 #include "total_sequence.h"
 #include "isort.h"
-#include "trie.h"
+#include "tree.h"
 #include "stack.h"
 
 #include <assert.h>
@@ -135,8 +135,7 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 	isort(y, nz);
 	memcpy(ybest, y, nz*sizeof(int));
 
-	struct trie *trie = trie_malloc();
-	trie_add(trie, y, nz);
+	struct tree *tree = tree_malloc(y, nz);
 	struct stack *todo = NULL;
 	todo = stack_push(todo, best, y, nz);
 
@@ -242,8 +241,8 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 				memcpy(ybest, yt, nz*sizeof(int));
 			}
 
-			if (!trie_contains(trie, yt, nz)) {
-				trie_add(trie, yt, nz);
+			if (!tree_contains(tree, yt, nz)) {
+				tree_add(tree, yt, nz);
 				todo = stack_push(todo, newval, yt, nz);
 			}
 		}
@@ -255,7 +254,7 @@ void implremovals(int *ybest, struct matrix *N, struct matrix *w)
 	matrix_free(ww);
 	matrix_free(rhs);
 	matrix_free(lu);
-	trie_free(trie);
+	tree_free(tree);
 }
 
 int main(int argc, char **argv)
