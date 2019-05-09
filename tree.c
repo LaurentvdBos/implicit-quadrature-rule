@@ -38,7 +38,7 @@ void tree_free(struct tree *root)
 	}
 }
 
-void tree_add(struct tree *root, int *a, int n)
+void tree_add(struct tree *root, const int *a, const int n)
 {
 	struct tree *ptr = root;
 
@@ -61,7 +61,7 @@ void tree_add(struct tree *root, int *a, int n)
 	}
 }
 
-bool tree_contains(struct tree *root, int *a, int n)
+bool tree_contains(struct tree *root, const int *a, const int n)
 {
 	struct tree *ptr = root;
 
