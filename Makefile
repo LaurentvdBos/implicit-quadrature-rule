@@ -1,4 +1,4 @@
-CFLAGS = -O3 -march=native -g -Wall -pedantic
+CFLAGS = -O3 -march=native -g -Wall -pedantic -Wextra
 LDLIBS = -lm -llapacke
 
 # If you want to statically link, use this:
