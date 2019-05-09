@@ -78,7 +78,7 @@ void vdm_col(struct matrix *v, double *y)
 	}
 }
 
-void implremovals(int *ybest, struct matrix *N, struct matrix *w)
+void implremovals(int *ybest, struct matrix *restrict N, struct matrix *restrict w)
 {
 	int nz = N->m;
 	int sz = N->n;
