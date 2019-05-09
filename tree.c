@@ -6,7 +6,7 @@
 static inline int compar(const int *a, const int *b, const int n)
 {
 	for (int i = 0; i < n; i++) {
-		if (a[i] != b[i]) {
+		if (b[i] != a[i]) {
 			return (b[i] - a[i]);
 		}
 	}
@@ -20,6 +20,7 @@ struct tree *tree_malloc(const int *a, const int n)
 
 	root->left = NULL;
 	root->right = NULL;
+	root->subtree = NULL;
 
 	root->a = malloc(n*sizeof(int));
 	memcpy(root->a, a, n*sizeof(int));
@@ -32,6 +33,7 @@ void tree_free(struct tree *root)
 	if (root) {
 		tree_free(root->left);
 		tree_free(root->right);
+		tree_free(root->subtree);
 
 		free(root->a);
 		free(root);
@@ -42,17 +44,33 @@ void tree_add(struct tree *root, const int *a, const int n)
 {
 	struct tree *ptr = root;
 
+	int i = 0;
+
 	while (ptr) {
-		if (compar(ptr->a, a, n) > 0) {
+		if (ptr->a[0] == a[i]) {
+			i++;
+
+			if (i == n) {
+				// Element is already in the tree
+				return;
+			}
+
+			if (ptr->subtree == NULL) {
+				ptr->subtree = tree_malloc(a + i, n - i);
+				break;
+			} else {
+				ptr = ptr->subtree;
+			}
+		} else if (a[i] < ptr->a[0]) {
 			if (ptr->left == NULL) {
-				ptr->left = tree_malloc(a, n);
+				ptr->left = tree_malloc(a + i, n - i);
 				break;
 			} else {
 				ptr = ptr->left;
 			}
 		} else {
 			if (ptr->right == NULL) {
-				ptr->right = tree_malloc(a, n);
+				ptr->right = tree_malloc(a + i, n - i);
 				break;
 			} else {
 				ptr = ptr->right;
@@ -65,12 +83,18 @@ bool tree_contains(struct tree *root, const int *a, const int n)
 {
 	struct tree *ptr = root;
 
+	int i = 0;
+
 	while (ptr) {
-		int c = compar(ptr->a, a, n);
-	
-		if (c > 0) {
-			ptr = ptr->left;
+		int c = compar(ptr->a, a + i, n - i);
+
+		if (ptr->a[0] == a[i] && c != 0) {
+			i++;
+
+			ptr = ptr->subtree;
 		} else if (c < 0) {
+			ptr = ptr->left;
+		} else if (c > 0) {
 			ptr = ptr->right;
 		} else {
 			return true;

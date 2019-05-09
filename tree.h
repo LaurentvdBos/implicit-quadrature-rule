@@ -8,6 +8,9 @@ struct tree
 	// Left and right subtree
 	struct tree *left, *right;
 
+	// Subtree of subsequences
+	struct tree *subtree;
+
 	// Array with indices, length is known by user
 	int *a;
 };
