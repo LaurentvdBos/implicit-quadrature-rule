@@ -40,6 +40,8 @@ void tree_free(struct tree *root)
 	}
 }
 
+// WARNING: Only add something to the tree if you're very sure that it is not
+// contained in the tree yet. Otherwise you'll get some nasty errors.
 void tree_add(struct tree *root, const int *a, const int n)
 {
 	struct tree *ptr = root;
@@ -49,11 +51,6 @@ void tree_add(struct tree *root, const int *a, const int n)
 	while (ptr) {
 		if (ptr->a[0] == a[i]) {
 			i++;
-
-			if (i == n) {
-				// Element is already in the tree
-				return;
-			}
 
 			if (ptr->subtree == NULL) {
 				ptr->subtree = tree_malloc(a+i, n-i);
