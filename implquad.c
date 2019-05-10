@@ -28,7 +28,7 @@
 #define PROGRESS_BAR 80
 
 int d = 0, n = 0, m = 0, K = 0;
-bool print_nodes = true, print_weights = true, print_index = false, pretty_print = true;
+bool print_nodes = true, print_weights = true, print_index = false, pretty_print = true, naive_approach = false;
 struct total_sequence *ts;
 
 extern double *matrix_workspace;
@@ -56,7 +56,8 @@ void usage(const char *myname)
 	fprintf(stderr, "  -x  Print nodes\n");
 	fprintf(stderr, "  -w  Print weights\n");
 	fprintf(stderr, "  -i  Print indices of samples used. List of samples is zero-indexed.\n");
-	fprintf(stderr, "  -q  Print nodes and weights seperately (otherwise as one big matrix)\n\n");
+	fprintf(stderr, "  -q  Print nodes and weights seperately (otherwise as one big matrix)\n");
+	fprintf(stderr, "  -r  Be naive: use the first removal found to remove nodes.\n\n");
 
 	lapack_int major, minor, patch;
 	LAPACKE_ilaver(&major, &minor, &patch);
@@ -137,6 +138,10 @@ void implremovals(int *ybest, struct matrix *restrict N, struct matrix *restrict
 
 	isort(y, nz);
 	memcpy(ybest, y, nz*sizeof(int));
+
+	if (naive_approach) {
+		goto out;
+	}
 
 	struct tree *tree = tree_malloc(y, nz);
 	struct stack *todo = NULL;
@@ -251,13 +256,15 @@ void implremovals(int *ybest, struct matrix *restrict N, struct matrix *restrict
 		}
 	}
 
-	free(y);
-	free(yt);
 	matrix_free(c);
-	matrix_free(ww);
 	matrix_free(rhs);
 	matrix_free(lu);
 	tree_free(tree);
+
+out:
+	matrix_free(ww);
+	free(y);
+	free(yt);
 }
 
 int main(int argc, char **argv)
@@ -271,7 +278,7 @@ int main(int argc, char **argv)
 	}
 
 	int opt;
-	while ((opt = getopt(argc, argv, "d:n:m:P:y:xwiqh?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:n:m:P:y:xwiqrh?")) != -1) {
 		switch (opt) {
 			case 'd':
 				d = atoi(optarg);
@@ -297,6 +304,9 @@ int main(int argc, char **argv)
 				break;
 			case 'q':
 				pretty_print = !pretty_print;
+				break;
+			case 'r':
+				naive_approach = !naive_approach;
 				break;
 			case 'h':
 			case '?':
