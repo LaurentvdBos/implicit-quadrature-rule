@@ -16,13 +16,13 @@ static inline int compar(const int *a, const int *b, const int n)
 
 struct tree *tree_malloc(const int *a, const int n)
 {
-	struct tree *root = malloc(sizeof(struct tree));
+	struct tree *root = malloc(sizeof(struct tree) + n*sizeof(int));
 
 	root->left = NULL;
 	root->right = NULL;
 	root->subtree = NULL;
 
-	root->a = malloc(n*sizeof(int));
+	root->a = (int *)(root+1);
 	memcpy(root->a, a, n*sizeof(int));
 
 	return root;
@@ -35,7 +35,6 @@ void tree_free(struct tree *root)
 		tree_free(root->right);
 		tree_free(root->subtree);
 
-		free(root->a);
 		free(root);
 	}
 }
