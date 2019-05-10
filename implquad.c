@@ -156,7 +156,7 @@ void implremovals(int *ybest, struct matrix *restrict N, struct matrix *restrict
 	// Keep track of the number of processed removals
 	int processed = 1;
 
-	while (todo != NULL && processed++ < r) {
+	while (todo && processed++ < r) {
 		memcpy(y, todo->y, nz*sizeof(int));
 		int val = todo->val;
 		todo = stack_pop(todo);
