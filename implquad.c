@@ -65,6 +65,26 @@ void usage(const char *myname)
 	fprintf(stderr, "This %s uses LAPACK %d.%d.%d\n", myname, major, minor, patch);
 }
 
+double legendre(int n, double x)
+{
+	if (n == 0) {
+		return 1.;
+	} else {
+		double tmp = 1.;
+		double y = x;
+
+		for (int i = 1; i < n; i++) {
+			tmp = ((2*i+1)*x*y - i*tmp) / (i+1);
+
+			double swp = tmp;
+			tmp = y;
+			y = swp;
+		}
+
+		return y;
+	}
+}
+
 void vdm_col(struct matrix *v, double *y)
 {
 	int j = v->m-1;
@@ -76,7 +96,7 @@ void vdm_col(struct matrix *v, double *y)
 
 		int l = 0;
 		for (struct node *n = ts->root; n; n = n->next) {
-			v->a[i*v->ncols + j] *= pow(y[l++], (double)n->val);
+			v->a[i*v->ncols + j] *= legendre(n->val, y[l++]);
 		}
 
 		total_sequence_next(ts);
