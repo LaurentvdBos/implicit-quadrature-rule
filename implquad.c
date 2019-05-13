@@ -18,10 +18,15 @@
 
 // DBL_DECIMAL_DIG is C11 and later only
 #ifndef DBL_DECIMAL_DIG
+  #warning Guessing the number of digits that should be printed. Output can be inaccurate or too verbose.
+
+  // If DECIMAL_DIG is provided, use that instead (provided by C99, often too
+  // accurate but always accurate enough). Otherwise use 17, which is the value
+  // for the standard IEEE 754 double used on many PC's.
   #ifdef DECIMAL_DIG
     #define DBL_DECIMAL_DIG DECIMAL_DIG
   #else
-    #define DBL_DECIMAL_DIG 16
+    #define DBL_DECIMAL_DIG 17
   #endif
 #endif
 
@@ -43,6 +48,10 @@ void usage(const char *myname)
 	fprintf(stderr, "Options with a + expect a positive number. Providing these options multiple\n"
 	                "times assigns them the last value. Options without a + are flags. Providing\n"
 	                "these options multiple times toggles them.\n\n");
+	
+	fprintf(stderr, "This function uses the standard Legendre polynomials to construct the\n"
+	                "Vandermonde-matrix. Ideally the data provied is scaled such that all data\n"
+			"points are within the [-1, 1]-hypercube.\n\n");
 
 	fprintf(stderr, "Compulsory options:\n");
 	fprintf(stderr, "  -d+ Dimension of the sample space; the samples can be provided unstructured\n");
