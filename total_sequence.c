@@ -15,48 +15,60 @@ static inline struct node *node_malloc()
 static void node_splice_next(struct total_sequence *ptr, struct node *b, struct node *a)
 {
 	// Remove a
-	if (a == ptr->root)
+	if (a == ptr->root) {
 		ptr->root = ptr->root->next;
-	if (a == ptr->leaf)
+	}
+	if (a == ptr->leaf) {
 		ptr->leaf = ptr->leaf->prev;
-	if (a->next)
+	}
+	if (a->next) {
 		a->next->prev = a->prev;
-	if (a->prev)
+	}
+	if (a->prev) {
 		a->prev->next = a->next;
+	}
 	
 	// Insert a
-	if (b->next)
+	if (b->next) {
 		b->next->prev = a;
+	}
 	a->next = b->next;
 	a->prev = b;
 	b->next = a;
 
-	if (b == ptr->leaf)
+	if (b == ptr->leaf) {
 		ptr->leaf = a;
+	}
 }
 
 // Puts a before b
 static void node_splice_prev(struct total_sequence *ptr, struct node *b, struct node *a)
 {
 	// Remove a
-	if (a == ptr->root)
+	if (a == ptr->root) {
 		ptr->root = ptr->root->next;
-	if (a == ptr->leaf)
+	}
+	if (a == ptr->leaf) {
 		ptr->leaf = ptr->leaf->prev;
-	if (a->next)
+	}
+	if (a->next) {
 		a->next->prev = a->prev;
-	if (a->prev)
+	}
+	if (a->prev) {
 		a->prev->next = a->next;
+	}
 	
 	// Insert a
-	if (b->prev)
+	if (b->prev) {
 		b->prev->next = a;
+	}
 	a->prev = b->prev;
 	a->next = b;
 	b->prev = a;
 
-	if (b == ptr->root)
+	if (b == ptr->root) {
 		ptr->root = a;
+	}
 }
 
 /**
@@ -69,12 +81,13 @@ static void next_sum(struct total_sequence *ptr)
 	unsigned int k = ptr->k;
 	unsigned int d = ptr->d;
 
-	if (k >= d)
+	if (k >= d) {
 		ptr->leaf->val = k - d + 1;
-	else if (k > 0)
+	} else if (k > 0) {
 		ptr->leaf->val = 1;
-	else
+	} else {
 		ptr->leaf->val = 0;
+	}
 
 	struct node *it = ptr->leaf->prev;
 	unsigned int i = k - ptr->leaf->val;
@@ -82,8 +95,9 @@ static void next_sum(struct total_sequence *ptr)
 		if (i > 0) {
 			it->val = 1;
 			i--;
-		} else
+		} else {
 			it->val = 0;
+		}
 		it = it->prev;
 	}
 
@@ -103,9 +117,9 @@ static void next_composition(struct total_sequence *ptr)
 {
 	struct node *it = ptr->leaf;
 
-	if (it->val == ptr->k - 1)
+	if (it->val == ptr->k - 1) {
 		next_sum(ptr);
-	else {
+	} else {
 		unsigned int y = it->val - 1;
 		it = it->prev;
 		unsigned int x = it->val + 1;
@@ -155,18 +169,20 @@ static void next_permutation(struct total_sequence *ptr)
 
 	struct node *curr = ptr->curr;
 
-	if (curr->prev && curr->prev->prev)
-		if (curr->prev->prev->val > curr->val)
+	if (curr->prev && curr->prev->prev) {
+		if (curr->prev->prev->val > curr->val) {
 			node_splice_next(ptr, ptr->leaf, curr->prev);
-		else
+		} else {
 			node_splice_next(ptr, ptr->leaf, curr->prev->prev);
-	else {
+		}
+	} else {
 		node_splice_next(ptr, ptr->leaf, ptr->root);
 		curr = ptr->root;
 	}
 
-	if (ptr->leaf->val < ptr->leaf->prev->val)
+	if (ptr->leaf->val < ptr->leaf->prev->val) {
 		curr = ptr->leaf;
+	}
 	
 	ptr->curr = curr;
 }
@@ -207,8 +223,9 @@ void total_sequence_free(struct total_sequence *ptr)
 
 void total_sequence_next(struct total_sequence *ptr)
 {
-	if (ptr->curr == ptr->root)
+	if (ptr->curr == ptr->root) {
 		next_composition(ptr);
+	}
 	
 	next_permutation(ptr);
 }
