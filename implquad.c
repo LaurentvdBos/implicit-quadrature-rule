@@ -304,8 +304,7 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	int opt;
-	while ((opt = getopt(argc, argv, "d:n:m:P:y:xwiqr:h?")) != -1) {
+	while (getopt(argc, argv, "d:n:m:P:y:xwiqr:h?") != -1) {
 		switch (opt) {
 			case 'd':
 				d = atoi(optarg);
