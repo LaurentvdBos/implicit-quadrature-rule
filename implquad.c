@@ -49,7 +49,7 @@ void usage(const char *myname)
 	                "these options multiple times toggles them.\n\n");
 	
 	fprintf(stderr, "This function uses the standard Legendre polynomials to construct the\n"
-	                "Vandermonde-matrix. Ideally the data provied is scaled such that all data\n"
+	                "Vandermonde-matrix. Ideally the data provided is scaled such that all data\n"
 			"points are within the [-1, 1]-hypercube.\n\n");
 
 	fprintf(stderr, "Compulsory options:\n");
