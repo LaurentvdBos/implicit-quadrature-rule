@@ -13,7 +13,7 @@
 #include <string.h>
 #include <tgmath.h>
 
-#include <getopt.h>
+#include "getopt.h"
 
 // DBL_DECIMAL_DIG is C11 and later only
 #ifndef DBL_DECIMAL_DIG
