@@ -66,7 +66,7 @@ void usage(const char *myname)
 	fprintf(stderr, "  -w  Print weights\n");
 	fprintf(stderr, "  -i  Print indices of samples used. List of samples is zero-indexed.\n");
 	fprintf(stderr, "  -q  Print nodes and weights seperately (otherwise as one big matrix)\n");
-	fprintf(stderr, "  -r+ Limit the number of removals that are considered.\n\n");
+	fprintf(stderr, "  -r+ Limit the number of removals that are considered.\n");
 }
 
 double legendre(int n, double x)
