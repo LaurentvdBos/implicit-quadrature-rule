@@ -13,7 +13,6 @@
 #include <string.h>
 #include <tgmath.h>
 
-#include <lapacke.h>
 #include <getopt.h>
 
 // DBL_DECIMAL_DIG is C11 and later only
@@ -68,10 +67,6 @@ void usage(const char *myname)
 	fprintf(stderr, "  -i  Print indices of samples used. List of samples is zero-indexed.\n");
 	fprintf(stderr, "  -q  Print nodes and weights seperately (otherwise as one big matrix)\n");
 	fprintf(stderr, "  -r+ Limit the number of removals that are considered.\n\n");
-
-	lapack_int major, minor, patch;
-	LAPACKE_ilaver(&major, &minor, &patch);
-	fprintf(stderr, "This %s uses LAPACK %d.%d.%d\n", myname, major, minor, patch);
 }
 
 double legendre(int n, double x)
