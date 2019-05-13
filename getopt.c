@@ -50,29 +50,23 @@ int getopt(int argc, char **argv, const char *fmt)
 		// If this option requires an argument, see whether it is provided
 		if (i[1] == ':') {
 			if (optind < argc-1 && !scanchar[1]) {
-				opt = *scanchar; optarg = argv[optind+1];
-				optind += 2;
+				opt = *scanchar; optarg = argv[++optind];
 				scanchar = NULL;
 			} else {
 				fprintf(stderr, "%s: option '%c' requires argument\n", argv[0], *scanchar);
 				scanchar++;
-
-				// If scanchar is invalid, go to next option
-				if (!scanchar || !*scanchar) {
-					optind++;
-				}
 
 				opt = '?'; optarg = NULL;
 			}
 		} else {
 			opt = *scanchar; optarg = NULL;
 			scanchar++;
-
-			// If scanchar is invalid, go to next option
-			if (!scanchar || !*scanchar) {
-				optind++;
-			}
 		}
+	}
+
+	// If scanchar is invalid, go to next option
+	if (!scanchar || !*scanchar) {
+		optind++;
 	}
 
 
