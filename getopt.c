@@ -42,7 +42,7 @@ int getopt(int argc, char **argv, const char *fmt)
 	// Find the option in fmt
 	char *i = strchr(fmt, *scanchar);
 	if (!i) {
-		fprintf(stderr, "Illegal option '%c'\n", *scanchar);
+		fprintf(stderr, "%s: illegal option '%c'\n", argv[0], *scanchar);
 		scanchar++;
 		
 		opt = '?'; optarg = NULL;
@@ -54,7 +54,7 @@ int getopt(int argc, char **argv, const char *fmt)
 				optind += 2;
 				scanchar = NULL;
 			} else {
-				fprintf(stderr, "Option '%c' requires argument\n", *scanchar);
+				fprintf(stderr, "%s: option '%c' requires argument\n", argv[0], *scanchar);
 				scanchar++;
 
 				// If scanchar is invalid, go to next option
