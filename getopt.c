@@ -83,6 +83,5 @@ int getopt(int argc, char **argv, const char *fmt)
 		optind++;
 	}
 
-
 	return opt;
 }
