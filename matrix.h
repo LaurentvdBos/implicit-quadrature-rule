@@ -11,7 +11,7 @@ struct matrix
 	// Number of rows/columns in the data structure, which can be larger than n/m
 	int nrows, ncols;
 
-	// Array of matrix coefficients in row-major order (n*lda)
+	// Array of matrix coefficients in row-major order (nrows*ncols)
 	double *a;
 
 	// These are used by LAPACK to store a decomposition
@@ -22,7 +22,6 @@ struct matrix
 
 struct matrix *matrix_malloc(int n, int m);
 void matrix_free(struct matrix *mat);
-void matrix_set(struct matrix *mat, const double *a);
 void matrix_copy(struct matrix *mat, const struct matrix *b);
 void matrix_resize(struct matrix *mat, const int n, const int m);
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c);

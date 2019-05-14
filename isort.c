@@ -1,3 +1,5 @@
+// A basic implementation of insertion sort. It sorts an array a with n
+// integers.
 void isort(int *a, int n)
 {
 	for (int i = 1; i < n; i++) {

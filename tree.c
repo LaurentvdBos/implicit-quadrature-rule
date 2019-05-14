@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Compare two arrays; returns 0 if b == a, -1 if b < a, and 1 if b > a.
 static inline int compar(const int *a, const int *b, const int n)
 {
 	for (int i = 0; i < n; i++) {
@@ -14,8 +15,10 @@ static inline int compar(const int *a, const int *b, const int n)
 	return 0;
 }
 
+// Allocate a tree node containing array a of size n
 struct tree *tree_malloc(const int *a, const int n)
 {
+	// Allocate node and space for array with one malloc
 	struct tree *root = malloc(sizeof(struct tree) + n*sizeof(int));
 
 	root->left = NULL;
@@ -28,6 +31,7 @@ struct tree *tree_malloc(const int *a, const int n)
 	return root;
 }
 
+// Free a tree node; recursively calls itself to free its children
 void tree_free(struct tree *root)
 {
 	if (root) {
@@ -39,6 +43,10 @@ void tree_free(struct tree *root)
 	}
 }
 
+// Add a sequence a with length n to the tree. The algorithm is to
+// straightforwardly traverse the tree until an empty leaf is found where the
+// array should be placed. The index i is used to count the subtree traversals.
+//
 // WARNING: Only add something to the tree if you're very sure that it is not
 // contained in the tree yet. Otherwise you'll get some nasty errors.
 void tree_add(struct tree *root, const int *a, const int n)
@@ -75,6 +83,9 @@ void tree_add(struct tree *root, const int *a, const int n)
 	}
 }
 
+// Verify whether an array a of size n is in the tree. The idea is exactly
+// similar to tree_add, though we need to compare all elements this time to
+// ensure that the current node is the correct one.
 bool tree_contains(const struct tree *root, const int *a, const int n)
 {
 	const struct tree *ptr = root;

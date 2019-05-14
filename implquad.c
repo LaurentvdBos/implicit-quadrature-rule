@@ -32,13 +32,19 @@
 // Size of the progressbar
 #define PROGRESS_BAR 80
 
-int d = 0, n = 0, m = 0, K = 0, r = INT_MAX;
-bool print_nodes = true, print_weights = true, print_index = false, pretty_print = true;
-struct total_sequence *ts;
+// Global parameters of the implicit quadrature rule set by the user
+static int d = 0, n = 0, m = 0, K = 0, r = INT_MAX;
+static bool print_nodes = true, print_weights = true, print_index = false, pretty_print = true;
 
+// The total sequence that is used to count the polynomials
+static struct total_sequence *ts;
+
+// The matrix workspace from all matrix operations should be freed at the end of the program
 extern double *matrix_workspace;
 
-void usage(const char *myname)
+// Print help message about the usage of this program. The parameters 'myname'
+// is the name of the program (often simply argv[0])
+static void usage(const char *myname)
 {
 	fprintf(stderr, "Usage: %s [-d dim] [-n number of nodes]\n\n", myname);
 	fprintf(stderr, "This program starts reading samples from standard input until eof and\n"
@@ -69,17 +75,26 @@ void usage(const char *myname)
 	fprintf(stderr, "  -r+ Limit the number of removals that are considered.\n");
 }
 
-double legendre(int n, double x)
+// Evaluate n-th Legendre polynomial on x. It implements the following
+// recurrence relation:
+//   (n+1) p(n+1) = (2n+1) x p(n) - n p(n)
+// The Legendre polynomials are defined on [-1, 1], so ideally the user should
+// provide the samples in that domain
+static double legendre(int n, double x)
 {
 	if (n == 0) {
 		return 1.;
 	} else {
-		double tmp = 1.;
+		// This is the first Legendre polynomial
 		double y = x;
+
+		// tmp is the value of the *previous* Legendre polynomial
+		double tmp = 1.;
 
 		for (int i = 1; i < n; i++) {
 			tmp = ((2*i+1)*x*y - i*tmp) / (i+1);
 
+			// tmp is now the (i+1)-th Legendre polynomial. Swap with y:
 			double swp = tmp;
 			tmp = y;
 			y = swp;
@@ -89,7 +104,12 @@ double legendre(int n, double x)
 	}
 }
 
-void vdm_col(struct matrix *v, double *y)
+// Construct the rightmost column of the Vandermonde-matrix using the sample y.
+// A total sequence is used to iterate over all sequences of length d. Then the
+// rightmost column of v is filled with d-variate polynomials of that degree.
+// The polynomials consists of products of Legendre polynomials, which should
+// keep the Vandermonde-matrix stable for not too weird input data.
+static void vdm_col(struct matrix *v, double *y)
 {
 	int j = v->m-1;
 
@@ -107,7 +127,15 @@ void vdm_col(struct matrix *v, double *y)
 	}
 }
 
-void implremovals(int *ybest, struct matrix *restrict N, struct matrix *restrict w)
+// Determine *all* removals that can be extracted from the null space stored in
+// N. The removal that removes the largest number of nodes is stored in ybest.
+// The best removal is the removal with the largest number of coefficients
+// larger than m (we are not allowed to remove anything below that level, since
+// the user wants to keep those samples).
+//
+// The restrict keyword allows the compiler to assume that the weights and the
+// nullspace do not alias.
+static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *restrict w)
 {
 	int nz = N->m;
 	int sz = N->n;

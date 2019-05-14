@@ -1,6 +1,7 @@
 #include "total_sequence.h"
 #include <stdlib.h>
 
+// Allocate a node of a linked list
 static inline struct node *node_malloc()
 {
 	struct node *tmp = malloc(sizeof(struct node));
@@ -11,7 +12,7 @@ static inline struct node *node_malloc()
 	return tmp;
 }
 
-// Puts a after b
+// Puts a after b; it requires some bookkeeping in case a or b is the root or the leaf
 static void node_splice_next(struct total_sequence *ptr, struct node *b, struct node *a)
 {
 	// Remove a
@@ -41,7 +42,7 @@ static void node_splice_next(struct total_sequence *ptr, struct node *b, struct 
 	}
 }
 
-// Puts a before b
+// Puts a before b; it requires some bookkeeping in case a or b is the root or leaf
 static void node_splice_prev(struct total_sequence *ptr, struct node *b, struct node *a)
 {
 	// Remove a
@@ -71,11 +72,11 @@ static void node_splice_prev(struct total_sequence *ptr, struct node *b, struct 
 	}
 }
 
-/**
- * Update the total sum of the sequence
- *
- * The linked list root is updated such that it contains the first composition
- */
+// Update the total sum of the sequence, which is basically unrolling the value
+// of the sum into the linked list and taking the length constraint of the
+// linked list into account.
+//
+// The linked list root is updated such that it contains the first composition
 static void next_sum(struct total_sequence *ptr)
 {
 	unsigned int k = ptr->k;
@@ -105,14 +106,13 @@ static void next_sum(struct total_sequence *ptr)
 	ptr->k++;
 }
 
-/**
- * Determine next composition and store in linked list in ptr
- * The algorithm is in-place and constant in time
- *
- * @see Kelleher [2004], slightly adapted for length contraint
- * @pre root is in sorted, ascending order
- * @post root is in sorted, ascending order containing the next composition
- */
+// Determine next composition and store in linked list in ptr
+// The algorithm is in-place and constant in time
+//
+// See also Kelleher [2004], slightly adapted for length constraint
+// Before this function: ensure that root is in sorted, ascending order
+// After this function: root is in sorted, ascending order containing the next
+// composition
 static void next_composition(struct total_sequence *ptr)
 {
 	struct node *it = ptr->leaf;
@@ -149,18 +149,18 @@ static void next_composition(struct total_sequence *ptr)
 	ptr->curr = ptr->root;
 }
 
-/**
- * Determine next permutation and store in linked list in ptr
- * The algorithm is in-place and constant in time
- *
- * The main logic only works for sequences with more than 2 elements, so the
- * special case of sequences of length 1 is caught immediately at entry of the
- * function.
- *
- * @see Williams [2009] (this implementation is in *reverse* order)
- * @pre curr points to the largest index such that everything after curr is ascending
- * @post root is the next permutation and curr has kept its property
- */
+// Determine next permutation and store in linked list in ptr
+// The algorithm is in-place and constant in time
+//
+// The main logic only works for sequences with more than 2 elements, so the
+// special case of sequences of length 1 is caught immediately at entry of the
+// function.
+//
+// See also Williams [2009] (this implementation is in *reverse* order)
+// Before this function: ensure curr points to the largest index such that
+// everything after curr is ascending
+// After this function: root is the next permutation and curr has kept its
+// property
 static void next_permutation(struct total_sequence *ptr)
 {
 	if (ptr->d == 1) {
@@ -187,6 +187,8 @@ static void next_permutation(struct total_sequence *ptr)
 	ptr->curr = curr;
 }
 
+// Allocate a total sequence containing d elements. It is initialized to
+// contain a sequence that sums to 0.
 struct total_sequence *total_sequence_malloc(unsigned int d)
 {
 	struct total_sequence *ptr = malloc(sizeof(struct total_sequence));
@@ -209,6 +211,7 @@ struct total_sequence *total_sequence_malloc(unsigned int d)
 	return ptr;
 }
 
+// Free a total sequence and the linked list it contains
 void total_sequence_free(struct total_sequence *ptr)
 {
 	struct node *tmp = ptr->root;
@@ -221,6 +224,10 @@ void total_sequence_free(struct total_sequence *ptr)
 	free(ptr);
 }
 
+// Move the total sequence to the next sequence. It consist of going to the
+// next permutation. We are at the last permutation if it is sorted, which is
+// the case if curr points to the root (see next_permutation for the invariant
+// here).
 void total_sequence_next(struct total_sequence *ptr)
 {
 	if (ptr->curr == ptr->root) {
@@ -230,11 +237,13 @@ void total_sequence_next(struct total_sequence *ptr)
 	next_permutation(ptr);
 }
 
+// Determine the total sum of the total sequence
 unsigned int total_sequence_sum(struct total_sequence *ptr)
 {
 	return ptr->k - 1;
 }
 
+// Set the sum of the total sequence to k
 void total_sequence_set_sum(struct total_sequence *ptr, unsigned int k)
 {
 	ptr->k = k;

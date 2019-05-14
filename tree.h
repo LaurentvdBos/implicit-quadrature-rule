@@ -21,7 +21,7 @@
 //
 // The advantage of this data structure is that the number of alloc'ed structs
 // is the same number as the elements in the tree. A straightforward trie has
-// too many structs and therefore uses too much memory to be usefull.
+// too many structs and therefore uses too much memory to be useful.
 
 struct tree
 {

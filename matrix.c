@@ -10,6 +10,11 @@
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
+// LAPACK requires a small bit of memory to calculate QR decompositions. It is
+// stored in this global variable and freed in main (see implquad.c).
+// workspace_ensure can be used to ensure that the workspace has a certain
+// size. You probably want to change this part if you want to use this software
+// in a multithreaded environment
 double *matrix_workspace = NULL;
 lapack_int nwork = 0;
 
@@ -21,6 +26,7 @@ static inline void workspace_ensure(lapack_int n)
 	}
 }
 
+// malloc a matrix with number of rows n and columns m. It is uninitialized.
 struct matrix *matrix_malloc(int n, int m)
 {
 	struct matrix *mat = malloc(sizeof(struct matrix));
@@ -38,6 +44,7 @@ struct matrix *matrix_malloc(int n, int m)
 	return mat;
 }
 
+// Free a matrix; after this function the pointer is invalid
 void matrix_free(struct matrix *mat)
 {
 	if (mat) {
@@ -48,16 +55,8 @@ void matrix_free(struct matrix *mat)
 	}
 }
 
-void matrix_set(struct matrix *mat, const double *a)
-{
-	for (int i = 0; i < mat->n; i++) {
-		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->ncols + j] = a[i*mat->m + j];
-		}
-	}
-}
-
-// mat = b
+// Copy matrix b to mat. We cannot use memcpy here, since the number of rows or
+// columns available in b can be different from the number in mat.
 void matrix_copy(struct matrix *mat, const struct matrix *b)
 {
 	assert(mat->n == b->n);
@@ -79,6 +78,10 @@ void matrix_copy(struct matrix *mat, const struct matrix *b)
 	}
 }
 
+// Resize a matrix such that it has a different number of rows and columns.
+// Notice that the number of rows or columns a matrix *can* store is different
+// than the number it actually has. This function only expands the storage, or
+// reuses it if it is already available.
 void matrix_resize(struct matrix *mat, const int n, const int m)
 {
 	if (mat->ncols >= m) {
@@ -91,6 +94,8 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 			mat->nrows = n;
 		}
 		mat->a = realloc(mat->a, m*mat->nrows*sizeof(double));
+		
+		// Copy data to new memory block, keeping the new number of columns into account
 		for (int i = min(mat->n, n)-1; i >= 0; i--) {
 			for (int j = mat->m-1; j >= 0; j--) {
 				mat->a[i*m + j] = mat->a[i*mat->ncols + j];
@@ -108,6 +113,8 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 	mat->pvt = NULL;
 }
 
+// Shrink the array of the matrix such that it *exactly* contains the number of
+// rows and columns of the matrix. This is necessary for some LAPACK functions.
 void matrix_shrink_to_fit(struct matrix *mat)
 {
 	if (mat->ncols > mat->m) {
@@ -122,7 +129,8 @@ void matrix_shrink_to_fit(struct matrix *mat)
 	mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
 }
 
-// mat = b*c
+// Basic implementation of matrix multiplication. The matrix mat cannot be
+// equal to b or c; b and c can be equal.
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c)
 {
 	assert(mat->n == b->n);
@@ -140,7 +148,9 @@ void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix 
 	}
 }
 
-// Calculate QR decomposition of *transpose* of the matrix
+// Calculate QR decomposition of *transpose* of the matrix. We do not have to
+// actively transpose the matrix, since LAPACK is column major and the
+// implementation here is row major.
 void matrix_qr(struct matrix *mat)
 {
 	double lwork;
@@ -198,18 +208,24 @@ void matrix_qr_null(struct matrix *mat, struct matrix *q)
 	assert(info == 0);
 }
 
-// Determine LU decomposition of A^T
+// Determine LU decomposition of the *transpose* of A. We do not have to
+// calculate the transpose of A, since LAPACK is column major and the
+// implementation here is row major.
 void matrix_lu(struct matrix *mat)
 {
 	mat->pvt = realloc(mat->pvt, mat->n*sizeof(lapack_int));
 	free(mat->tau);
 	mat->tau = NULL;
 
+	// No workspace allocation is necessary for an LU decomposition
 	lapack_int info = LAPACKE_dgetrf_work(LAPACK_COL_MAJOR, mat->m, mat->n, mat->a, mat->ncols, mat->pvt);
 	assert(info == 0);
 }
 
-// Use LU decomposition of A^T to solve Ax = b for vector b
+// Use LU decomposition of *transpose* of A to solve Ax = b for vector b.
+// LAPACK can solve A^T x = b, so we ask LAPACK to do the transposition for us.
+// We need to ensure that b is compact, i.e. the array of b should not be
+// larger than necessary.
 void matrix_lu_solve(struct matrix *mat, struct matrix *b)
 {
 	assert(mat->n == mat->m);

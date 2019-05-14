@@ -15,6 +15,20 @@ int optind = 1;
 // Index used if multi-char option is found
 static char *scanchar = NULL;
 
+// Parse command line options. See 'man 3 getopt' on a Linux distribution or
+// google 'getopt C' for extensive information about this function.
+//
+// The format fmt should be a C-string which contains characters that are
+// options. If a character is followed by :, it accepts an option. E.g. "a:b"
+// accepts the options -a and -b (or -ab) and a should have an argument. Then
+// "-b -a [bork]" or "-ba [bork]" is valid, but "-ab [bork]" is not. Repeatedly
+// calling this function with the same argc/argv/fmt iterates through all
+// options. It returns the character of the option and can be resetted by
+// setting optind to 1.
+//
+// Parsing stops when a non-option is found, when -- is found, or when there
+// are no options to parse anymore, whichever comes first. In that case it
+// returns -1.
 int getopt(int argc, char **argv, const char *fmt)
 {
 	if (!scanchar || !*scanchar) {
