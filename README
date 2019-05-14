@@ -1,0 +1,234 @@
+THE IMPLICIT QUADRATURE RULE
+============================
+
+by Laurent van den Bos, CWI Amsterdam
+
+This is software accompanying the paper "Generating nested quadrature rules
+with positive weights based on arbitrary sample sets" (arXiv:1809.09842). This
+file does not explain all the mathematical details, but only discusses the
+usage of this software. The article can be read freely here:
+
+<https://arxiv.org/abs/1809.09842>
+
+The software is provided in the hope that it is useful for you. If you have any
+questions about it, do not hesitate to get in touch:
+
+l.m.m.van.den.bos@cwi.nl
+
+Summary
+-------
+The goal is to calculate a weighted integral over a function by using
+evaluations of the function. The most straightforward approach is to sample
+from the weighting function, evaluate the function at each value, and take the
+average. This approach often converges too slowly: the error of the
+approximation decays with rate 1/2, so to gain one digit of accuracy, hundred
+times more samples are necessary.
+
+A different approach is to use a quadrature rule, which is a weighted sum of
+evaluations. The idea is to evaluate the function at pre-determined samples
+(called nodes) and take a weighted average of the obtained values. If it is
+enforced that this construction is accurate for polynomials of increasing
+degree, the approximation made by means of a quadrature rule converges faster
+than that made using Monte Carlo under mild conditions, provided that the
+weights used in the weighted sum are all non-negative.
+
+The challenge is to construct the quadrature rule. Many approaches exist, but
+often stringent assumptions are necessary on the weighting function.
+
+The implicit quadrature rule is a quadrature rule that is constructed using an
+arbitrary number of samples from the distribution. It is constructed such that
+approximations made using polynomials up to a certain degree are equal to the
+same approximations made using samples. The obtained quadrature rule has
+positive weights.
+
+The software provided in this distribution determines such a quadrature rule
+when samples are provided. The samples should be provided on standard input,
+the software prints the quadrature rule nodes and weights (and optionally their
+indices in the sample set) to standard output.
+
+Compilation
+-----------
+Before the software can be used, it has to be compiled. This requires a C
+compiler and the LAPACKE libraries (the C interface of LAPACK) installed. The
+software should compile using any C99 compliant compiler. If it is compiled
+with a C11 compliant compiler, it is automatically ensured that the accuracy of
+the printed digits is optimal.
+
+Under Linux, LAPACKE is often available from the package manager. For example,
+these libraries are available as package 'liblapacke-dev' in the distribution
+Debian and its derivates. They can be installed as follows:
+
+# sudo apt install liblapacke-dev
+
+Consult the manual and/or package manager of your distribution to determine the
+name of the LAPACKE library.
+
+When LAPACKE is installed, the software can be compiled using a simple
+invocation of 'make'. The obtained executable is called 'implquad' and
+optimized for the current architecture. The Makefile is fairly straightforward
+and can be edited straightforwardly to configure your build parameters. In
+particular, the parameters one typically needs to obtain a statically linked
+executable are commented.
+
+Under Windows, it is slightly more difficult to compile the software, since
+installing LAPACKE is slightly more difficult. Arguably the easiest way is to
+use the Intel Math Kernel Library instead, which is further explained below.
+This requires a small modification to the code.
+
+Instead of relying on existing libraries, one can compile LAPACK manually. It
+is freely available from the following website:
+
+<http://www.netlib.org/lapack/>
+
+It can be compiled straightforwardly if a C and Fortran compiler is available.
+
+Usage
+-----
+In this section it is assumed that you use a Linux terminal, but this is not
+necessary. All examples also work under Windows or any other platform.
+
+Help about the software can be obtained by directly invoking the program
+without any options, or using the options -h or -?:
+
+$ ./implquad
+Usage: ./implquad [-d dim] [-n number of nodes]
+
+This program starts reading samples from standard input until eof and
+prints the quadrature consisting of n nodes to standard output.
+
+Options with a + expect a positive number. Providing these options multiple
+times assigns them the last value. Options without a + are flags. Providing
+these options multiple times toggles them.
+
+This function uses the standard Legendre polynomials to construct the
+Vandermonde-matrix. Ideally the data provided is scaled such that all data
+points are within the [-1, 1]-hypercube.
+
+Compulsory options:
+  -d+ Dimension of the sample space; the samples can be provided unstructured
+  -n+ Number of nodes in the obtained quadrature rule
+
+Optional options (defaults to -xwqm0):
+  -m+ Number of nodes that should be preserved in the rule. Providing a
+      non-zero integer yields a quadrature rule that at least contains
+      the first m samples.
+  -y+ Total number of samples provided. If provided, prints a progress
+      bar to stderr.
+  -x  Print nodes
+  -w  Print weights
+  -i  Print indices of samples used. List of samples is zero-indexed.
+  -q  Print nodes and weights separately (otherwise as one big matrix)
+  -r+ Limit the number of removals that are considered.
+
+Example
+-------
+For sake of example, we construct a univariate quadrature rule that integrates
+3 polynomials exactly using the "samples" -1, -0.5, -0.1, 0, 1/2, 1. One would
+proceed as follows:
+
+$ ./implquad -d 1 -n 3
+-1 -0.5 -0.1 0 0.5 1
+
+Here the second line denotes standard input. The program keeps reading until it
+cannot read any numbers anymore (i.e. the file has ended). Under Linux, one can
+stop providing numbers using Crtl+D. It is also possible to write the samples
+to a file and feed the file as standard input.
+
+The output could look as follows:
+
+$ ./implquad -d 1 -n 3
+-1 -0.5 -0.1 0 0.5 1
+Nodes:
+-1.00000000000000000e+00 
+-5.00000000000000000e-01 
+5.00000000000000000e-01 
+
+Weights:
+2.24444444444444252e-01
+1.80000000000000604e-01
+5.95555555555555172e-01
+
+Notice that this indeed is a quadrature rule of degree 2, since (rounding the
+weights here):
+* 2.24e-01          + 1.8e-01          + 5.95e-01         = 1
+* 2.24e-01 * -1e+00 + 1.8e-01 * -5e-01 + 5.95e-01 * 5e-01 = -0.0167
+					  = (-1 + -0.5 + -0.1 + 0 + 0.5 + 1) / 6
+Similar results can be obtained using the square of all nodes.
+
+The major power of this code is that it can force that certain samples are
+eventually *in* the quadrature rule. It could do this by introducing a node
+with weight equal to zero, but it tries to avoid this at all cost.
+
+For sake of example, we revisit the previous example and want to force -1, 0.5,
+and 1 in the quadrature rule. These samples should be provided first (cf.
+./implquad -h) and the number of samples that should be preserved should be
+provided using the option -m:
+
+$ ./implquad -d 1 -n 3 -m 3
+-1 0.5 1 -0.5 -0.1 0
+Nodes:
+-1.00000000000000000e+00 
+5.00000000000000000e-01 
+1.00000000000000000e+00 
+-1.00000000000000006e-01 
+
+Weights:
+2.77777777777777790e-01
+5.55555555555555469e-01
+0.00000000000000000e+00
+1.66666666666666657e-01
+
+Indeed, the nodes are in the obtained quadrature rule, but one node has weight
+equal to zero. This rule has, albeit its fourth node, exactly the same
+properties as the rule obtained in the previous example.
+
+Multivariate quadrature rules are obtained in exactly the same way:
+
+$ ./implquad -d 2 -n 3
+0.1 0.2
+0.3 0.4
+0.5 0.6
+0.7 0.8
+0.9 1.0
+Nodes:
+6.99999999999999956e-01 8.00000000000000044e-01 
+2.99999999999999989e-01 4.00000000000000022e-01 
+5.00000000000000000e-01 5.99999999999999978e-01 
+
+Weights:
+4.92571942926615797e-02
+4.92571942926614548e-02
+9.01485611414677090e-01
+
+Notice that it is not necessary to structure your input as in the example. Any
+formatting of the list of samples (e.g. one per line or all on one line) will
+do.
+
+Intel Math Kernel Library
+-------------------------
+The code can also be compiled using the Intel Math Kernel Library. This does
+not provide a significant performance boost, since the cost of the procedure is
+not in the linear algebra, but it could make compilation more easy under
+Windows.
+
+The Intel Math Kernel Library is available for no cost and can be obtained at
+the following website:
+
+<https://software.intel.com/en-us/mkl>
+
+To compile the software using this library, one needs to open matrix.c and
+matrix.h and change in both files lapacke.h to mkl.h. No further changes are
+necessary.
+
+Possible issues
+---------------
+The number of nodes that can be removed from a quadrature rule grows quite
+rapidly if you want to keep a large number of samples in the quadrature rule.
+This can result in long computational times and large memory usage. The
+duration of the process can be limited by using the -r flag.
+
+Ideally, all samples should be scaled between [-1, 1], since the polynomials
+used in the code (the Legendre polynomials) are defined on that interval. The
+quadrature rule nodes can then be scaled back afterwards without any accuracy
+loss. Providing samples with very large values can result in a very inaccurate
+quadrature rule.
