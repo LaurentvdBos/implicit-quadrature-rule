@@ -150,9 +150,9 @@ Weights:
 
 Notice that this indeed is a quadrature rule of degree 2, since (rounding the
 weights here):
-* 2.24e-01          + 1.8e-01          + 5.95e-01         = 1
-* 2.24e-01 * -1e+00 + 1.8e-01 * -5e-01 + 5.95e-01 * 5e-01 = -0.0167
-					  = (-1 + -0.5 + -0.1 + 0 + 0.5 + 1) / 6
+* 2.24e-01        + 1.8e-01        + 5.95e-01       = 1
+* 2.24e-01*-1e+00 + 1.8e-01*-5e-01 + 5.95e-01*5e-01 = -0.0167 = (-1 + -0.5 +
+  -0.1 + 0 + 0.5 + 1) / 6
 Similar results can be obtained using the square of all nodes.
 
 The major power of this code is that it can force that certain samples are
