@@ -232,3 +232,9 @@ used in the code (the Legendre polynomials) are defined on that interval. The
 quadrature rule nodes can then be scaled back afterwards without any accuracy
 loss. Providing samples with very large values can result in a very inaccurate
 quadrature rule.
+
+The monomial order used to construct the quadrature rule is not a well-known
+order (but it is a well-order). Constructing a multivariate quadrature rule of
+certain *polynomial* degree work unconditionally, but if the number of
+polynomials used is between two polynomial degrees it is not immediately
+evident which polynomials are integrated exactly.
