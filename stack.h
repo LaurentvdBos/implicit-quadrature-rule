@@ -13,10 +13,10 @@ struct stack
 
 static struct stack *stack_push(struct stack *root, int val, int *y, int n)
 {
-	struct stack *node = malloc(sizeof(struct stack));
+	struct stack *node = malloc(sizeof(struct stack) + n*sizeof(int));
 
 	node->val = val;
-	node->y = malloc(n*sizeof(int));
+	node->y = (int *)(node + 1);
 	memcpy(node->y, y, n*sizeof(int));
 	node->next = root;
 
@@ -27,7 +27,6 @@ static struct stack *stack_pop(struct stack *root)
 {
 	struct stack *node = root->next;
 
-	free(root->y);
 	free(root);
 
 	return node;
