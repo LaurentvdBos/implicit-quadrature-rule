@@ -108,7 +108,7 @@ Compulsory options:
   -d+ Dimension of the sample space; the samples can be provided unstructured
   -n+ Number of nodes in the obtained quadrature rule
 
-Optional options (defaults to -xwqm0):
+Optional options (defaults to -xwqm 0):
   -m+ Number of nodes that should be preserved in the rule. Providing a
       non-zero integer yields a quadrature rule that at least contains
       the first m samples.

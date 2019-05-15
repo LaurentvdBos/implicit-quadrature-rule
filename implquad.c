@@ -62,7 +62,7 @@ static void usage(const char *myname)
 	fprintf(stderr, "  -d+ Dimension of the sample space; the samples can be provided unstructured\n");
 	fprintf(stderr, "  -n+ Number of nodes in the obtained quadrature rule\n\n");
 
-	fprintf(stderr, "Optional options (defaults to -xwqm0):\n");
+	fprintf(stderr, "Optional options (defaults to -xwqm 0):\n");
 	fprintf(stderr, "  -m+ Number of nodes that should be preserved in the rule. Providing a\n"
 	                "      non-zero integer yields a quadrature rule that at least contains\n"
 	                "      the first m samples.\n");
