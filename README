@@ -235,6 +235,6 @@ quadrature rule.
 
 The monomial order used to construct the quadrature rule is not a well-known
 order (but it is a well-order). Constructing a multivariate quadrature rule of
-certain *polynomial* degree work unconditionally, but if the number of
+certain *polynomial* degree works unconditionally, but if the number of
 polynomials used is between two polynomial degrees it is not immediately
 evident which polynomials are integrated exactly.
