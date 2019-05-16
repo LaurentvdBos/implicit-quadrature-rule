@@ -34,8 +34,6 @@ int getopt(int argc, char **argv, const char *fmt)
 	if (!scanchar || !*scanchar) {
 		// Check if optind is still valid
 		if (optind >= argc || argv[optind][0] != '-') {
-			optind++;
-
 			opt = '?'; optarg = NULL;
 			return -1;
 		}
