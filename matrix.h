@@ -20,6 +20,9 @@ struct matrix
 	lapack_int *pvt;
 };
 
+// The matrix workspace is used by LAPACK in some operations and should be freed by the user
+extern double *matrix_workspace;
+
 struct matrix *matrix_malloc(int n, int m);
 void matrix_free(struct matrix *mat);
 void matrix_copy(struct matrix *mat, const struct matrix *b);

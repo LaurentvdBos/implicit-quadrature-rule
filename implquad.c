@@ -39,9 +39,6 @@ static bool print_nodes = true, print_weights = true, print_index = false, prett
 // The total sequence that is used to count the polynomials
 static struct total_sequence *ts;
 
-// The matrix workspace from all matrix operations should be freed at the end of the program
-extern double *matrix_workspace;
-
 // Print help message about the usage of this program. The parameters 'myname'
 // is the name of the program (often simply argv[0])
 static void usage(const char *myname)
