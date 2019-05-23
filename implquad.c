@@ -92,9 +92,9 @@ static double legendre(int n, double x)
 			yprev = ((2*i+1)*x*y - i*yprev) / (i+1);
 
 			// tmp is now the (i+1)-th Legendre polynomial. Swap with y:
-			double twp = yprev;
+			double tmp = yprev;
 			yprev = y;
-			y = twp;
+			y = tmp;
 		}
 
 		return y;
