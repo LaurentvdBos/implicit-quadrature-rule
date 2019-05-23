@@ -15,7 +15,7 @@ struct matrix
 	double *a;
 
 	// These are used by LAPACK to store a decomposition
-	// QR used both tau and pvt; LU only uses pvt
+	// QR uses both tau and pvt; LU only uses pvt
 	double *tau;
 	lapack_int *pvt;
 };
