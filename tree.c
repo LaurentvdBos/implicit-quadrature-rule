@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Compare two arrays; returns 0 if b == a, -1 if b < a, and 1 if b > a.
+// Compare two arrays; returns 0 if b == a, a negative number if b < a, and a
+// positive number if b > a.
 static inline int compar(const int *a, const int *b, const int n)
 {
 	for (int i = 0; i < n; i++) {
