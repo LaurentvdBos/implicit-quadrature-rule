@@ -322,7 +322,7 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 int main(int argc, char **argv)
 {
 	if (argc < 1) {
-		usage("[this-program]");
+		usage("implquad");
 		return EXIT_FAILURE;
 	} else if (argc == 1) {
 		usage(argv[0]);
