@@ -18,7 +18,7 @@
 double *matrix_workspace = NULL;
 lapack_int nwork = 0;
 
-static inline void workspace_ensure(lapack_int n)
+static inline void workspace_ensure(const lapack_int n)
 {
 	if (n > nwork) {
 		nwork = n;
@@ -27,7 +27,7 @@ static inline void workspace_ensure(lapack_int n)
 }
 
 // malloc a matrix with number of rows n and columns m. It is uninitialized.
-struct matrix *matrix_malloc(int n, int m)
+struct matrix *matrix_malloc(const int n, const int m)
 {
 	struct matrix *mat = malloc(sizeof(struct matrix));
 	mat->n = n;
