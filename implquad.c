@@ -77,7 +77,7 @@ static void usage(const char *myname)
 //   (n+1) p(n+1) = (2n+1) x p(n) - n p(n)
 // The Legendre polynomials are defined on [-1, 1], so ideally the user should
 // provide the samples in that domain
-static double legendre(int n, double x)
+static double legendre(const int n, const double x)
 {
 	if (n == 0) {
 		return 1.;
