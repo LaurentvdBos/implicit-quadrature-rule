@@ -204,6 +204,7 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 
 	while (tree->num > 0 && processed++ < r) {
 		int val = tree_extract(tree, y, nz);
+		assert(val > -1);
 
 		// Extract rows y from null space and put as *columns* in lu
 		for (int i = 0; i < nz; i++) {
