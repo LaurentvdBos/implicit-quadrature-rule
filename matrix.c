@@ -174,7 +174,7 @@ void matrix_qr(struct matrix *mat)
 	assert(info == 0);
 }
 
-// Determine rightmost vectors of the q matrix stored in the QR decomposition
+// Determine rightmost vectors of the Q matrix stored in the QR decomposition
 // of mat, which are null vectors if mat has a nullspace. If mat is not a QR
 // decomposition, one is constructed. The number of vectors returned is defined
 // by the number of columns of q.
