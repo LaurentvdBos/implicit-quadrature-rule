@@ -33,11 +33,18 @@ struct tree
 
 	// Array with indices, length is known by user
 	int *a;
+
+	// Value of this node
+	int val;
+
+	// Number of unprocessed array elements in this part of the tree
+	unsigned long num;
 };
 
-struct tree *tree_malloc(const int *a, const int n);
+struct tree *tree_malloc(const int *a, const int n, const int val);
 void tree_free(struct tree *root);
-void tree_add(struct tree *root, const int *a, const int n);
+void tree_add(struct tree *root, const int *a, const int n, const int val);
 bool tree_contains(const struct tree *root, const int *a, const int n);
+int tree_extract(struct tree *root, int *a, const int n);
 
 #endif

@@ -2,7 +2,6 @@
 #include "total_sequence.h"
 #include "isort.h"
 #include "tree.h"
-#include "stack.h"
 
 #include <assert.h>
 #include <float.h>
@@ -189,9 +188,7 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 	isort(y, nz);
 	memcpy(ybest, y, nz*sizeof(int));
 
-	struct tree *tree = tree_malloc(y, nz);
-	struct stack *todo = NULL;
-	todo = stack_push(todo, best, y, nz);
+	struct tree *tree = tree_malloc(y, nz, best);
 
 	// Matrix used to compute all alpha's, it is basically an LU decomposition
 	struct matrix *lu = matrix_malloc(nz, nz);
@@ -205,10 +202,8 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 	// Keep track of the number of processed removals
 	int processed = 1;
 
-	while (todo && processed++ < r) {
-		memcpy(y, todo->y, nz*sizeof(int));
-		int val = todo->val;
-		todo = stack_pop(todo);
+	while (tree->num > 0 && processed++ < r) {
+		int val = tree_extract(tree, y, nz);
 
 		// Extract rows y from null space and put as *columns* in lu
 		for (int i = 0; i < nz; i++) {
@@ -299,15 +294,9 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 			}
 
 			if (!tree_contains(tree, yt, nz)) {
-				tree_add(tree, yt, nz);
-				todo = stack_push(todo, newval, yt, nz);
+				tree_add(tree, yt, nz, newval);
 			}
 		}
-	}
-
-	// Clean up stack
-	while (todo) {
-		todo = stack_pop(todo);
 	}
 
 	matrix_free(c);
