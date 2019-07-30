@@ -117,7 +117,10 @@ bool tree_contains(const struct tree *root, const int *a, const int n)
 	return false;
 }
 
-// Extract a list from the tree
+// Extract a list from the tree. The extracted list will be stored in *a, and
+// marked as "processed" by reducing the field num. We need to find the deepest
+// unprocessed child, since otherwise the code might construct unreachable
+// children.
 int tree_extract(struct tree *root, int *a, const int n)
 {
 	struct tree *ptr = root;
