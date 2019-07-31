@@ -1,8 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <lapacke.h>
-
 struct matrix
 {
 	// Number of rows/columns in the matrix
@@ -14,25 +12,16 @@ struct matrix
 	// Array of matrix coefficients in row-major order (nrows*ncols)
 	double *a;
 
-	// These are used by LAPACK to store a decomposition
-	// QR uses both tau and pvt; LU only uses pvt
-	double *tau;
-	lapack_int *pvt;
+	// The LU decomposition uses partial pivoting, stored in the following
+	// array. It is also used as an indicator that the matrix is an
+	// LU-decomposition
+	int *pvt;
 };
-
-// The matrix workspace is used by LAPACK in some operations and should be freed by the user
-extern double *matrix_workspace;
 
 struct matrix *matrix_malloc(int n, int m);
 void matrix_free(struct matrix *mat);
 void matrix_copy(struct matrix *mat, const struct matrix *b);
 void matrix_resize(struct matrix *mat, const int n, const int m);
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c);
-
-void matrix_qr(struct matrix *mat);
-void matrix_qr_null(struct matrix *mat, struct matrix *q);
-
-void matrix_lu(struct matrix *mat);
-void matrix_lu_solve(struct matrix *mat, struct matrix *b);
 
 #endif

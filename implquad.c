@@ -1,3 +1,4 @@
+#include "lu.h"
 #include "matrix.h"
 #include "total_sequence.h"
 #include "isort.h"
@@ -457,7 +458,8 @@ int main(int argc, char **argv)
 			matrix_resize(c, q+1, nz);
 			matrix_resize(vq, v->n, v->m);
 			matrix_copy(vq, v);
-			matrix_qr_null(vq, c);
+			matrix_lu(vq);
+			matrix_lu_null(vq, c);
 
 			// Allocate space for the best removal
 			yhat = realloc(yhat, nz*sizeof(int));
@@ -571,8 +573,6 @@ out:
 	matrix_free(vq);
 	matrix_free(v);
 	total_sequence_free(ts);
-
-	free(matrix_workspace);
 
 	return EXIT_SUCCESS;
 }
