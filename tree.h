@@ -38,7 +38,7 @@ struct tree
 	int val;
 
 	// Number of unprocessed array elements in this part of the tree
-	unsigned long num;
+	long num;
 };
 
 struct tree *tree_malloc(const int *a, const int n, const int val);
