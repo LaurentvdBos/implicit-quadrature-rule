@@ -83,7 +83,7 @@ void matrix_lu_solve(struct matrix *mat, struct matrix *b)
 		}
 	}
 
-	// Unpivot b: look iteratively where the element has been going to
+	// Unpivot b: look iteratively where the element has been moved to
 	for (int i = 0; i < n; i++) {
 		int k = pvt[i];
 		while (k < i) {
