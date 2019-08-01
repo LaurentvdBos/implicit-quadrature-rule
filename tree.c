@@ -139,7 +139,7 @@ int tree_extract(struct tree *root, int *a, const int n)
 			ptr = ptr->right;
 		} else {
 			// No unprocessed children anymore. Process this one.
-			memcpy(a+i, ptr->a, n-i);
+			memcpy(a+i, ptr->a, (n-i)*sizeof(int));
 			return ptr->val;
 		}
 	}
