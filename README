@@ -48,39 +48,19 @@ indices in the sample set) to standard output.
 
 Compilation
 -----------
-Before the software can be used, it has to be compiled. This requires a C
-compiler and the LAPACKE libraries (the C interface of LAPACK) installed. The
-software should compile using any C99 compliant compiler. If it is compiled
-with a C11 compliant compiler, it is automatically ensured that the accuracy of
-the printed digits is optimal.
+Before the software can be used, it has to be compiled. The software should
+compile using any C99 compliant compiler. If it is compiled with a C11
+compliant compiler, it is automatically ensured that the accuracy of the
+printed digits is optimal.
 
-Under Linux, LAPACKE is often available from the package manager. For example,
-these libraries are available as package 'liblapacke-dev' in the distribution
-Debian and its derivates. They can be installed as follows:
+The software can be compiled using a simple invocation of 'make'. The obtained
+executable is called 'implquad' and optimized for the current architecture. The
+Makefile is fairly straightforward and can be edited straightforwardly to
+configure your build parameters. In particular, the parameters one typically
+needs to obtain a statically linked executable are commented.
 
-# sudo apt install liblapacke-dev
-
-Consult the manual and/or package manager of your distribution to determine the
-name of the LAPACKE library.
-
-When LAPACKE is installed, the software can be compiled using a simple
-invocation of 'make'. The obtained executable is called 'implquad' and
-optimized for the current architecture. The Makefile is fairly straightforward
-and can be edited straightforwardly to configure your build parameters. In
-particular, the parameters one typically needs to obtain a statically linked
-executable are commented.
-
-Under Windows, it is slightly more difficult to compile the software, since
-installing LAPACKE is slightly more difficult. Arguably the easiest way is to
-use the Intel Math Kernel Library instead, which is further explained below.
-This requires a small modification to the code.
-
-Instead of relying on existing libraries, one can compile LAPACK manually. It
-is freely available from the following website:
-
-<http://www.netlib.org/lapack/>
-
-It can be compiled straightforwardly if a C and Fortran compiler is available.
+Under any other operating system, consult the manual of your C compiler or
+build environment to find out how to compile software written in C.
 
 Usage
 -----
@@ -203,22 +183,6 @@ Weights:
 Notice that it is not necessary to structure your input as in the example. Any
 formatting of the list of samples (e.g. one per line or all on one line) will
 do.
-
-Intel Math Kernel Library
--------------------------
-The code can also be compiled using the Intel Math Kernel Library. This does
-not provide a significant performance boost, since the cost of the procedure is
-not in the linear algebra, but it could make compilation more easy under
-Windows.
-
-The Intel Math Kernel Library is available for no cost and can be obtained at
-the following website:
-
-<https://software.intel.com/en-us/mkl>
-
-To compile the software using this library, one needs to open matrix.c and
-matrix.h and change in both files lapacke.h to mkl.h. No further changes are
-necessary.
 
 Possible issues
 ---------------
