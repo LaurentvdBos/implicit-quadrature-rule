@@ -1,3 +1,4 @@
+#include "lu.h"
 #include "matrix.h"
 #include "total_sequence.h"
 #include "isort.h"
@@ -231,9 +232,20 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 
 		// Main loop to explore all other neighboring points on simplex
 		for (int i = 0; i < nz; i++) {
+			// Find null vector we are going to use this iteration.
+			// We need a non-zero element to be able to remove y[i]
+			int k = -1; double nmax = 0.;
+			for (int j = 0; j < nz; j++) {
+				if (fabs(N->a[y[i]*N->ncols + j]) > nmax) {
+					nmax = fabs(N->a[y[i]*N->ncols + j]);
+					k = j;
+				}
+			}
+			assert(k > -1);
+
 			// Prepare rhs
 			for (int j = 0; j < nz; j++) {
-				rhs->a[j*rhs->ncols] = N->a[y[j]*N->ncols + i];
+				rhs->a[j*rhs->ncols] = N->a[y[j]*N->ncols + k];
 			}
 			rhs->a[i*rhs->ncols] = 0.;
 
@@ -243,7 +255,7 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 			// Determine the null vector
 			matrix_mul(c, N, rhs);
 			for (int j = 0; j < sz; j++) {
-				c->a[j*c->ncols] = N->a[j*N->ncols + i] - c->a[j*c->ncols];
+				c->a[j*c->ncols] = N->a[j*N->ncols + k] - c->a[j*c->ncols];
 			}
 			for (int j = 0; j < nz; j++) {
 				if (i == j) {
@@ -447,7 +459,8 @@ int main(int argc, char **argv)
 			matrix_resize(c, q+1, nz);
 			matrix_resize(vq, v->n, v->m);
 			matrix_copy(vq, v);
-			matrix_qr_null(vq, c);
+			matrix_lu(vq);
+			matrix_lu_null(vq, c);
 
 			// Allocate space for the best removal
 			yhat = realloc(yhat, nz*sizeof(int));
@@ -561,8 +574,6 @@ out:
 	matrix_free(vq);
 	matrix_free(v);
 	total_sequence_free(ts);
-
-	free(matrix_workspace);
 
 	return EXIT_SUCCESS;
 }
