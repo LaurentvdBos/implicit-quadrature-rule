@@ -245,6 +245,7 @@ static void implremovals(int *ybest, struct matrix *restrict N, struct matrix *r
 					k = j;
 				}
 			}
+			assert(k > -1);
 
 			// Prepare rhs
 			for (int j = 0; j < nz; j++) {
