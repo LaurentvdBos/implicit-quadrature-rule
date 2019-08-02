@@ -21,13 +21,18 @@ void matrix_lu(struct matrix *mat)
 
 	for (int i = 0; i < n; i++) {
 		// Find pivot in this column
-		double amax = mat->a[pvt[i]*mat->ncols + i];
-		int imax = i;
-		for (int k = i+1; k < n; k++) {
+		double amax = 0.;
+		int imax = -1;
+		for (int k = i; k < n; k++) {
 			double newmax = fabs(mat->a[pvt[k]*mat->ncols + i]);
 			if (newmax > amax) {
 				amax = newmax; imax = k;
 			}
+		}
+		
+		// Verify whether this row is already in the correct form
+		if (imax == -1) {
+			continue;
 		}
 
 		// Store pivot
