@@ -56,8 +56,7 @@ printed digits is optimal.
 The software can be compiled using a simple invocation of 'make'. The obtained
 executable is called 'implquad' and optimized for the current architecture. The
 Makefile is fairly straightforward and can be edited straightforwardly to
-configure your build parameters. In particular, the parameters one typically
-needs to obtain a statically linked executable are commented.
+configure your build parameters.
 
 Under any other operating system, consult the manual of your C compiler or
 build environment to find out how to compile software written in C.
@@ -189,7 +188,8 @@ Possible issues
 The number of nodes that can be removed from a quadrature rule grows quite
 rapidly if you want to keep a large number of samples in the quadrature rule.
 This can result in long computational times and large memory usage. The
-duration of the process can be limited by using the -r flag.
+duration of the process can be limited by using the -r flag, though a less
+optimal quadrature rule might be obtained.
 
 Ideally, all samples should be scaled between [-1, 1], since the polynomials
 used in the code (the Legendre polynomials) are defined on that interval. The
