@@ -85,13 +85,13 @@ static double legendre(const int n, const double x)
 		// This is the first Legendre polynomial
 		double y = x;
 
-		// tmp is the value of the *previous* Legendre polynomial
+		// yprev is the value of the *previous* Legendre polynomial
 		double yprev = 1.;
 
 		for (int i = 1; i < n; i++) {
 			yprev = ((2*i+1)*x*y - i*yprev) / (i+1);
 
-			// tmp is now the (i+1)-th Legendre polynomial. Swap with y:
+			// yprev is now the (i+1)-th Legendre polynomial. Swap with y:
 			double tmp = yprev;
 			yprev = y;
 			y = tmp;
