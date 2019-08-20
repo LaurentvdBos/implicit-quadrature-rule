@@ -39,8 +39,8 @@ int getopt(int argc, char **argv, const char *fmt)
 		}
 		scanchar = argv[optind];
 
-		// Check if we found --
-		if (scanchar[1] == '-') {
+		// Check if we found -- or -
+		if (scanchar[1] == '-' || scanchar[1] == 0) {
 			scanchar = NULL;
 			optind++;
 
