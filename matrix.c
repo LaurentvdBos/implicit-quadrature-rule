@@ -87,22 +87,6 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 	mat->pvt = NULL;
 }
 
-// Shrink the array of the matrix such that it *exactly* contains the number of
-// rows and columns of the matrix.
-void matrix_shrink_to_fit(struct matrix *mat)
-{
-	if (mat->ncols > mat->m) {
-		for (int i = 0; i < mat->n; i++) {
-			for (int j = 0; j < mat->m; j++) {
-				mat->a[i*mat->m + j] = mat->a[i*mat->ncols + j];
-			}
-		}
-	}
-	mat->ncols = mat->m;
-	mat->nrows = mat->n;
-	mat->a = realloc(mat->a, mat->n*mat->m*sizeof(double));
-}
-
 // Basic implementation of matrix multiplication. The matrix mat cannot be
 // equal to b or c; b and c can be equal.
 void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix *c)
