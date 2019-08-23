@@ -143,10 +143,10 @@ void matrix_lu_null(struct matrix *mat, struct matrix *c)
 	// Put a reverse negative identity matrix in the bottom of c and zeroes elsewhere
 	for (int i = n; i < m; i++) {
 		for (int j = 0; j < mz; j++) {
-			c->a[i*c->ncols + j] = 0.L;
+			c->a[i*c->ncols + j] = 0.;
 		}
 
 		int j = m-i-1;
-		c->a[i*c->ncols + j] = -1.L;
+		c->a[i*c->ncols + j] = -1.;
 	}
 }
