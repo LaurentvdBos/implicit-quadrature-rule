@@ -202,3 +202,14 @@ order (but it is a well-order). Constructing a multivariate quadrature rule of
 certain *polynomial* degree works unconditionally, but if the number of
 polynomials used is between two polynomial degrees it is not immediately
 evident which polynomials are integrated exactly.
+
+If you compile the source code with assertions enabled (that is the default),
+then you might stumble upon an error that looks as follows:
+
+	implremovals: Assertion `ww->a[j*ww->ncols] >= 0.' failed.
+
+This error occurs if the numerical round off becomes too large, which is
+usually the case if you want to preserve nodes in the rule that are not
+representative for the distribution of the samples. There is not much we can do
+about this, since the problem *itself* is unstable in that case. Simply check
+your input, correct it, and try again.
