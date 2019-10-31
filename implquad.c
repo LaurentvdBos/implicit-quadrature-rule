@@ -51,9 +51,10 @@ static void usage(const char *myname)
 	                "times assigns them the last value. Options without a + are flags. Providing\n"
 	                "these options multiple times toggles them.\n\n");
 	
-	fprintf(stderr, "This function uses the standard Legendre polynomials to construct the\n"
-	                "Vandermonde-matrix. Ideally the data provided is scaled such that all data\n"
-			"points are within the [-1, 1]-hypercube.\n\n");
+	fprintf(stderr, "For the generation of the quadrature rules, the Vandermonde matrix is\n"
+	                "constructed using the standard Legendre polynomials. Ideally the data that\n"
+			"is provided as input is scaled such that all samples are within the\n"
+			"[-1, 1]-hypercube.\n\n");
 
 	fprintf(stderr, "Compulsory options:\n");
 	fprintf(stderr, "  -d+ Dimension of the sample space; the samples can be provided unstructured\n");
@@ -101,11 +102,11 @@ static double legendre(const int n, const double x)
 	}
 }
 
-// Construct the rightmost column of the Vandermonde-matrix using the sample y.
+// Construct the rightmost column of the Vandermonde matrix using the sample y.
 // A total sequence is used to iterate over all sequences of length d. Then the
 // rightmost column of v is filled with d-variate polynomials of that degree.
 // The polynomials consists of products of Legendre polynomials, which should
-// keep the Vandermonde-matrix stable for not too weird input data.
+// keep the Vandermonde matrix stable for not too weird input data.
 static void vdm_col(struct matrix *v, double *y)
 {
 	int j = v->m-1;
@@ -387,7 +388,7 @@ int main(int argc, char **argv)
 	// Initialize total sequence
 	ts = total_sequence_malloc(d);
 
-	// Vandermonde-matrix
+	// Vandermonde matrix
 	struct matrix *v = matrix_malloc(n, 0);
 	struct matrix *vq = matrix_malloc(n, 0);
 
