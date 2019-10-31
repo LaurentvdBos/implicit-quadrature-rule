@@ -18,7 +18,7 @@ struct matrix
 	int *pvt;
 };
 
-struct matrix *matrix_malloc(int n, int m);
+struct matrix *matrix_malloc(const int n, const int m);
 void matrix_free(struct matrix *mat);
 void matrix_copy(struct matrix *mat, const struct matrix *b);
 void matrix_resize(struct matrix *mat, const int n, const int m);
