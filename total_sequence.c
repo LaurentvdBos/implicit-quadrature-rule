@@ -189,7 +189,7 @@ static void next_permutation(struct total_sequence *ptr)
 
 // Allocate a total sequence containing d elements. It is initialized to
 // contain a sequence that sums to 0.
-struct total_sequence *total_sequence_malloc(unsigned int d)
+struct total_sequence *total_sequence_malloc(const unsigned int d)
 {
 	struct total_sequence *ptr = malloc(sizeof(struct total_sequence));
 
@@ -238,13 +238,13 @@ void total_sequence_next(struct total_sequence *ptr)
 }
 
 // Determine the total sum of the total sequence
-unsigned int total_sequence_sum(struct total_sequence *ptr)
+unsigned int total_sequence_sum(const struct total_sequence *ptr)
 {
 	return ptr->k - 1;
 }
 
 // Set the sum of the total sequence to k
-void total_sequence_set_sum(struct total_sequence *ptr, unsigned int k)
+void total_sequence_set_sum(struct total_sequence *ptr, const unsigned int k)
 {
 	ptr->k = k;
 	next_sum(ptr);
