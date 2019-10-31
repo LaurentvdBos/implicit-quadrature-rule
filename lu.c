@@ -56,7 +56,7 @@ void matrix_lu(struct matrix *mat)
 // Solve A*x = b using the LU decomposition of A, so first solve U*y = b and
 // then solve L*x = y. These solves can be done in place and the result of the
 // operation is stored in b.
-void matrix_lu_solve(struct matrix *mat, struct matrix *b)
+void matrix_lu_solve(const struct matrix *mat, struct matrix *b)
 {
 	assert(mat->n == mat->m);
 	assert(b->n == mat->m);
@@ -108,7 +108,7 @@ void matrix_lu_solve(struct matrix *mat, struct matrix *b)
 // vectors are determined by solving the linear system A*x = C, where A are the
 // leftmost columns of U forming a square and C are the rightmost columns of U
 // forming the rest. Everything is done in place.
-void matrix_lu_null(struct matrix *mat, struct matrix *c)
+void matrix_lu_null(const struct matrix *mat, struct matrix *c)
 {
 	assert(c->n == mat->m);
 	assert(c->m <= mat->m - mat->n);
