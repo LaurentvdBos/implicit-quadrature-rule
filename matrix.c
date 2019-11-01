@@ -82,7 +82,7 @@ void matrix_resize(struct matrix *mat, const int n, const int m)
 	mat->n = n;
 	mat->m = m;
 
-	// A resize always invalidates a QR or LU decomposition
+	// A resize always invalidates an LU decomposition
 	free(mat->pvt);
 	mat->pvt = NULL;
 }
