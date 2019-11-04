@@ -79,8 +79,8 @@ static void node_splice_prev(struct total_sequence *ptr, struct node *b, struct 
 // The linked list root is updated such that it contains the first composition
 static void next_sum(struct total_sequence *ptr)
 {
-	unsigned int k = ptr->k;
-	unsigned int d = ptr->d;
+	int k = ptr->k;
+	int d = ptr->d;
 
 	if (k >= d) {
 		ptr->leaf->val = k - d + 1;
@@ -91,7 +91,7 @@ static void next_sum(struct total_sequence *ptr)
 	}
 
 	struct node *it = ptr->leaf->prev;
-	unsigned int i = k - ptr->leaf->val;
+	int i = k - ptr->leaf->val;
 	while (it) {
 		if (i > 0) {
 			it->val = 1;
@@ -120,9 +120,9 @@ static void next_composition(struct total_sequence *ptr)
 	if (it->val == ptr->k - 1) {
 		next_sum(ptr);
 	} else {
-		unsigned int y = it->val - 1;
+		int y = it->val - 1;
 		it = it->prev;
-		unsigned int x = it->val + 1;
+		int x = it->val + 1;
 
 		while (x <= y) {
 			it->val = x;
@@ -189,7 +189,7 @@ static void next_permutation(struct total_sequence *ptr)
 
 // Allocate a total sequence containing d elements. It is initialized to
 // contain a sequence that sums to 0.
-struct total_sequence *total_sequence_malloc(const unsigned int d)
+struct total_sequence *total_sequence_malloc(const int d)
 {
 	struct total_sequence *ptr = malloc(sizeof(struct total_sequence));
 
@@ -198,7 +198,7 @@ struct total_sequence *total_sequence_malloc(const unsigned int d)
 	ptr->root = node_malloc();
 	ptr->leaf = ptr->root;
 
-	for (unsigned int i = 1; i < d; i++) {
+	for (int i = 1; i < d; i++) {
 		struct node *tmp = node_malloc();
 		tmp->next = ptr->root;
 		ptr->root->prev = tmp;
@@ -238,13 +238,13 @@ void total_sequence_next(struct total_sequence *ptr)
 }
 
 // Determine the total sum of the total sequence
-unsigned int total_sequence_sum(const struct total_sequence *ptr)
+int total_sequence_sum(const struct total_sequence *ptr)
 {
 	return ptr->k - 1;
 }
 
 // Set the sum of the total sequence to k
-void total_sequence_set_sum(struct total_sequence *ptr, const unsigned int k)
+void total_sequence_set_sum(struct total_sequence *ptr, const int k)
 {
 	ptr->k = k;
 	next_sum(ptr);
