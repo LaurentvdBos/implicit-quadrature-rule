@@ -97,11 +97,13 @@ void matrix_mul(struct matrix *mat, const struct matrix *b, const struct matrix 
 
 	for (int i = 0; i < mat->n; i++) {
 		for (int j = 0; j < mat->m; j++) {
-			mat->a[i*mat->ncols + j] = 0;
+			double v = 0.;
 
 			for (int k = 0; k < c->n; k++) {
-				mat->a[i*mat->ncols + j] += b->a[i*b->ncols + k]*c->a[k*c->ncols + j];
+				v += b->a[i*b->ncols + k]*c->a[k*c->ncols + j];
 			}
+
+			mat->a[i*mat->ncols + j] = v;
 		}
 	}
 }
