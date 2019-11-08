@@ -60,32 +60,26 @@ void matrix_lu_solve(const struct matrix *mat, struct matrix *b)
 {
 	assert(mat->n == mat->m);
 	assert(b->n == mat->m);
+	assert(b->m == 1);
 	assert(mat->pvt);
 
 	const int n = mat->n;
-	const int m = b->m;
 	const int *pvt = mat->pvt;
 
 	// Solve L*x = b -> store result immediately in b
 	for (int i = 0; i < n; i++) {
 		for (int k = 0; k < i; k++) {
-			for (int j = 0; j < m; j++) {
-				b->a[pvt[i]*b->ncols + j] -= mat->a[pvt[i]*mat->ncols + k] * b->a[pvt[k]*b->ncols + j];
-			}
+			b->a[pvt[i]*b->ncols] -= mat->a[pvt[i]*mat->ncols + k] * b->a[pvt[k]*b->ncols];
 		}
 	}
 
 	// Solve U*x = b -> store result immediately in b
 	for (int i = n-1; i >= 0; i--) {
 		for (int k = i+1; k < n; k++) {
-			for (int j = 0; j < m; j++) {
-				b->a[pvt[i]*b->ncols + j] -= mat->a[pvt[i]*mat->ncols + k] * b->a[pvt[k]*b->ncols + j];
-			}
+			b->a[pvt[i]*b->ncols] -= mat->a[pvt[i]*mat->ncols + k] * b->a[pvt[k]*b->ncols];
 		}
 
-		for (int j = 0; j < m; j++) {
-			b->a[pvt[i]*b->ncols + j] /= mat->a[pvt[i]*mat->ncols + i];
-		}
+		b->a[pvt[i]*b->ncols] /= mat->a[pvt[i]*mat->ncols + i];
 	}
 
 	// Unpivot b: look iteratively where the element has been moved to
@@ -95,11 +89,9 @@ void matrix_lu_solve(const struct matrix *mat, struct matrix *b)
 			k = pvt[k];
 		}
 
-		for (int j = 0; j < m; j++) {
-			double tmp = b->a[i*b->ncols + j];
-			b->a[i*b->ncols + j] = b->a[k*b->ncols + j];
-			b->a[k*b->ncols + j] = tmp;
-		}
+		double tmp = b->a[i*b->ncols];
+		b->a[i*b->ncols] = b->a[k*b->ncols];
+		b->a[k*b->ncols] = tmp;
 	}
 }
 
