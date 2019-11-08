@@ -3,7 +3,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <tgmath.h>
+#include <math.h>
 
 // Determine an LU decomposition of a matrix in place. The decomposition is
 // determined using Gaussian elimination and partial pivoting (i.e. columnwise
