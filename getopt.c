@@ -54,7 +54,7 @@ int getopt(int argc, char **argv, const char *fmt)
 
 	// Find the option in fmt
 	char *i = strchr(fmt, *scanchar);
-	if (!i) {
+	if (!i || *scanchar == ':') {
 		fprintf(stderr, "%s: illegal option '%c'\n", argv[0], *scanchar);
 		scanchar++;
 		
